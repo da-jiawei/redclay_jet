@@ -2,6 +2,7 @@ library(tidyverse)
 
 ## read data ----
 D47 = read.csv("out/D47.csv")
+D47= D47[order(D47$age),] 
 d18c = read.csv("out/d18c.csv")
 dp17 = read.csv("out/dp17.csv")
 
@@ -11,9 +12,9 @@ site1 = pal[factor(D47$site, levels = c("Lantian", "Shilou", "Jiaxian"))]
 site2 = pal[factor(d18c$site, levels = c("Lantian", "Shilou", "Jiaxian"))]
 site3 = pal[factor(dp17$section, levels = c("Lantian", "Shilou", "Jiaxian"))]
 
-# png("figures/soil_water.png", 4.7, 5, units = "in", res = 300)
+# png("figures/soil_water.png", 4.7, 6, units = "in", res = 300)
 par(mar = c(4, 4, 1, 4))
-plot(0, 0, xlim = c(2, 7.5), ylim = c(0, 3.3), axes = FALSE,
+plot(0, 0, xlim = c(2, 7.5), ylim = c(0, 3), axes = FALSE,
      xlab = "", ylab = "")
 
 yext = range(D47$st.low, D47$st.high)
@@ -26,11 +27,14 @@ D47.rs = cbind(D47$age,
 arrows(D47.rs[, 1], D47.rs[, 3], D47.rs[, 1], D47.rs[, 4], col = "black",
        angle=90, length=0, code = 0)
 points(D47.rs[, 1], D47.rs[, 2], col = "black", bg = site1, pch = 21, cex = 1.5)
-lines(lowess(D47.rs[, 1], D47.rs[, 2], f = 0.3), col = "black", lwd = 3)
+# loess_fit = loess(data = D47, temp ~ age, span = 0.2)
+# pred = predict(loess_fit, se = TRUE)
+# lines(D47$age, 2 + (pred$fit - min(tix)) / diff(range(tix)), lwd = 3)
+lines(lowess(D47.rs[, 1], D47.rs[, 2], f = 0.3), lwd = 3)
 axis(2, 2 + (tix - min(tix)) / diff(range(tix)), tix)
 mtext(expression(paste("T"[Delta*"47"]*" (", degree, "C)")), 2, line = 2.5, at = 2.5)
-legend(x = 6.2, y = 3.3, legend = c("Lantian", "Shilou", "Jiaxian"),
-       col = pal, pch = 16, cex = 0.8, pt.cex = 1.5)
+# legend(x = 6.2, y = 3.3, legend = c("Lantian", "Shilou", "Jiaxian"),
+#        col = pal, pch = 16, cex = 0.8, pt.cex = 1.5)
 
 # # soil water d18O using paired data
 # yext = range(D47$d18sw.low, D47$d18sw.high)
