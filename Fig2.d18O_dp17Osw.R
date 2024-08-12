@@ -98,3 +98,12 @@ p2 = ggplot() +
        color = "RH (%)")
 ggarrange(p1, p2, nrow = 1, ncol = 2, widths = c(1.09,1))
 ggsave("figures/IWB.jpg", width = 9, height = 3.7)
+
+
+ggplot(rc, aes(x = age, y = Dp17sw, fill = section)) +
+  geom_errorbar(aes(ymin = Dp17sw.low, ymax = Dp17sw.high), size = 0.2, width = 0) +
+  geom_point(size = 4, shape = 21) +
+  scale_fill_brewer(palette = "Paired") +
+  theme_bw() + theme +
+  scale_y_reverse() +
+  labs(x = "Age (Ma)", y = expression(Delta^"'17"*"O"[sw]))
