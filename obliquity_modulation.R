@@ -7,7 +7,7 @@ sw = read.csv("out/d18c.csv")
 #   mutate(age = age / 1000) %>%
 #   filter(age > 2.5 & age < 7.5)
 orbital = read_xlsx("data/global records/Pliocene_orbital_and_insolation_data.xlsx")
-age = seq(2.5, 7.5, 0.01)
+age = seq(0, 7.5, 0.01)
 obliquity = cos(2*pi*(1/1200)*age*1000)
 ob.am2 = data.frame(age, obliquity)
 
@@ -58,7 +58,7 @@ ggplot(sig.am, aes(x = age, y = sig.am)) +
   geom_smooth(se = FALSE, span = 0.1) + 
   scale_y_reverse()
 
-png("figures/obliquity.jpg", 5.5, 5, units = "in", res = 300)
+# png("figures/obliquity.jpg", 5.5, 5, units = "in", res = 300)
 par(mar = c(4, 4, 1, 4))
 plot(0, 0, xlim = c(2, 7.5), ylim = c(0, 3), axes = FALSE,
      xlab = "", ylab = "")
@@ -101,4 +101,4 @@ mtext(expression(delta^"18"*"O"[sw]*" (\u2030)"), 2, line = 2.5, at = 0.5)
 
 axis(1)
 mtext("Age (Ma)", 1, line = 2)
-dev.off()
+# dev.off()

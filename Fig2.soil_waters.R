@@ -1,5 +1,6 @@
 library(tidyverse)
 library(ggpubr)
+library(readxl)
 
 ## read data ----
 D47 = read.csv("out/D47.csv")
@@ -16,7 +17,7 @@ site1 = pal[factor(D47$site, levels = c("Lantian", "Shilou", "Jiaxian"))]
 site2 = pal[factor(d18c$site, levels = c("Lantian", "Shilou", "Jiaxian"))]
 site3 = pal[factor(dp17$section, levels = c("Lantian", "Shilou", "Jiaxian"))]
 
-pdf("figures/Fig1.soil_water.pdf", 4.5, 7)
+pdf("figures/FigS2.soil_water.pdf", 4.5, 7)
 par(mar = c(4, 4, 1, 4))
 plot(0, 0, xlim = c(2, 7.5), ylim = c(0, 6.5), axes = FALSE,
      xlab = "", ylab = "")
@@ -26,10 +27,10 @@ tix = seq(floor(min(yext*10)),
           ceiling(max(yext*10+1)), by = 5)/10
 ob.rs = cbind(ob$age,
                4 + (ob$obliquity - min(tix)) / diff(range(tix)))
-lines(ob.rs[, 1], ob.rs[, 2], col = pal[5])
+lines(ob.rs[, 1], ob.rs[, 2], col = pal[1])
 ob.am.rs = cbind(ob.am$age,
               4 + (ob.am$ob.am - min(tix)) / diff(range(tix)))
-lines(ob.am.rs[, 1], ob.am.rs[, 2], col = pal[6], lwd = 2)
+lines(ob.am.rs[, 1], ob.am.rs[, 2], col = pal[2], lwd = 2)
 axis(2, 4 + (tix - min(tix)) / diff(range(tix)), tix)
 mtext("obliquity", 2, line = 2.5, at = 4.5)
 
@@ -64,37 +65,40 @@ legend(x = 6, y = 6.4, legend = c("Lantian", "Shilou", "Jiaxian"),
        col = pal, pch = 16, cex = 0.8, pt.cex = 1.5)
 
 
-# # soil water d18O using paired data
-# yext = range(D47$d18sw.low, D47$d18sw.high)
-# tix = seq(floor(min(yext)), 
-#           ceiling(max(yext)), by = 2)
-# D47.rs = cbind(D47$age,
-#                2 + (D47$d18sw - min(tix)) / diff(range(tix)),
-#                2 + (D47$d18sw.low - min(tix)) / diff(range(tix)),
-#                2 + (D47$d18sw.high - min(tix)) / diff(range(tix)))
-# arrows(D47.rs[, 1], D47.rs[, 3], D47.rs[, 1], D47.rs[, 4], col = "black",
-#        angle=90, length=0, code = 0)
-# points(D47.rs[, 1], D47.rs[, 2], col = "black", bg = site, pch = 21, cex = 1.5)
-# axis(2, 2 + (tix - min(tix)) / diff(range(tix)), tix)
-# mtext(expression(delta^"18"*"O"[sw]*" (\u2030)"), 2, line = 2.5, at = 2.5)
-
-# soil water d18O using interpolated data
-yext = range(d18c$d18sw.low, d18c$d18sw.high)
-tix = seq(floor(min(yext)), 
+# soil water d18O using paired data
+yext = range(D47$d18sw.low, D47$d18sw.high)
+tix = seq(floor(min(yext)),
           ceiling(max(yext)), by = 2)
-d18c.rs = cbind(d18c$age,
-                1 + (d18c$d18sw - min(tix)) / diff(range(tix)),
-                1 + (d18c$d18sw.low - min(tix)) / diff(range(tix)),
-                1 + (d18c$d18sw.high - min(tix)) / diff(range(tix)))
-arrows(d18c.rs[, 1], d18c.rs[, 3], d18c.rs[, 1], d18c.rs[, 4], col = "black",
+D47.rs = cbind(D47$age,
+               1 + (D47$d18sw - min(tix)) / diff(range(tix)),
+               1 + (D47$d18sw.low - min(tix)) / diff(range(tix)),
+               1 + (D47$d18sw.high - min(tix)) / diff(range(tix)))
+arrows(D47.rs[, 1], D47.rs[, 3], D47.rs[, 1], D47.rs[, 4], col = "black",
        angle=90, length=0, code = 0)
-points(d18c.rs[, 1], d18c.rs[, 2], col = "black", bg = site2, pch = 21, cex = 1.2)
+points(D47.rs[, 1], D47.rs[, 2], col = "black", bg = site1, pch = 21, cex = 1.5)
+loess_fit = loess(data = D47, d18sw ~ age, span = 0.2)
+pred = predict(loess_fit, se = TRUE)
+lines(lowess(D47.rs[, 1], D47.rs[, 2], f = 0.3), lwd = 3)
 axis(4, 1 + (tix - min(tix)) / diff(range(tix)), tix)
 mtext(expression(delta^"18"*"O"[sw]*" (\u2030)"), 4, line = 2.5, at = 1.5)
 
+# # soil water d18O using interpolated data
+# yext = range(d18c$d18sw.low, d18c$d18sw.high)
+# tix = seq(floor(min(yext)), 
+#           ceiling(max(yext)), by = 2)
+# d18c.rs = cbind(d18c$age,
+#                 1 + (d18c$d18sw - min(tix)) / diff(range(tix)),
+#                 1 + (d18c$d18sw.low - min(tix)) / diff(range(tix)),
+#                 1 + (d18c$d18sw.high - min(tix)) / diff(range(tix)))
+# arrows(d18c.rs[, 1], d18c.rs[, 3], d18c.rs[, 1], d18c.rs[, 4], col = "black",
+#        angle=90, length=0, code = 0)
+# points(d18c.rs[, 1], d18c.rs[, 2], col = "black", bg = site2, pch = 21, cex = 1.2)
+# axis(4, 1 + (tix - min(tix)) / diff(range(tix)), tix)
+# mtext(expression(delta^"18"*"O"[sw]*" (\u2030)"), 4, line = 2.5, at = 1.5)
+
 yext = range(dp17$Dp17sw.low, dp17$Dp17sw.high)
-tix = seq(ceiling(max(yext) + 2), 
-          floor(min(yext)), by = -50)
+tix = seq(ceiling(min(yext)+27), floor(max(yext+20)), 
+          by = 50)
 dp17.rs = cbind(dp17$age,
                 1 - (dp17$Dp17sw - min(tix)) / diff(range(tix)),
                 1 - (dp17$Dp17sw.low - min(tix)) / diff(range(tix)),

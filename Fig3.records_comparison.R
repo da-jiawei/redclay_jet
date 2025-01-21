@@ -2,6 +2,7 @@ library(tidyverse)
 library(readxl)
 library(ggpubr)
 
+## load data
 sw = read.csv("out/d18c.csv")
 smi = read_xlsx("data/regional records/SMI.xlsx") %>%
   mutate(age = age / 1000) %>%
