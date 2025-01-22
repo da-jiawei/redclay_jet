@@ -3,13 +3,13 @@ library(ggpubr)
 library(readxl)
 
 ## read data ----
-D47 = read.csv("out/D47.csv")
+D47 = read.csv("output/D47.csv")
 D47= D47[order(D47$age),] 
-d18c = read.csv("out/d18c.csv")
-dp17 = read.csv("out/dp17.csv")
-ob.am = read.csv("out/ob.am.csv")
-ob = read_xlsx("data/global records/Pliocene_orbital_and_insolation_data.xlsx")
-sig.am = read.csv("out/sig.am.csv")
+d18c = read.csv("output/d18c.csv")
+dp17 = read.csv("output/dp17.csv")
+ob.am = read.csv("output/ob.am.csv")
+ob = read_xlsx("data/global_records/Pliocene_orbital_and_insolation_data.xlsx")
+sig.am = read.csv("output/sig.am.csv")
 
 ## plot ----
 pal = c("#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C", "#FB9A99", "#E31A1C")

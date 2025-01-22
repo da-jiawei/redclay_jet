@@ -3,18 +3,18 @@ library(readxl)
 library(ggpubr)
 
 ## load data
-sw = read.csv("out/d18c.csv")
-smi = read_xlsx("data/regional records/SMI.xlsx") %>%
+sw = read.csv("output/d18c.csv")
+smi = read_xlsx("data/regional_records/SMI.xlsx") %>%
   mutate(age = age / 1000) %>%
   filter(age > 2 & age < 7.5) %>%
   drop_na(SMI)
-gdgt = read_xlsx("data/regional records/gdgt.xlsx")
-snail = read_xls("data/regional records/land snails.xls", sheet = "Xifeng")
+gdgt = read_xlsx("data/regional_records/gdgt.xlsx")
+snail = read_xls("data/regional_records/land snails.xls", sheet = "Xifeng")
 ca = snail[, 1:2] %>% drop_na()
 wh = snail[, 3:4] %>% drop_na()
-iron = read_xlsx("data/regional records/freeiron.xlsx", sheet = "Pianguan")
-rbsr = read_xlsx("data/regional records/RbSr.xlsx")
-ob.am = read.csv("out/ob.am.csv")
+iron = read_xlsx("data/regional_records/freeiron.xlsx", sheet = "Pianguan")
+rbsr = read_xlsx("data/regional_records/RbSr.xlsx")
+ob.am = read.csv("output/ob.am.csv")
 
 ## plot ----
 pal = c("#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C", "#FB9A99", "#E31A1C")

@@ -1,7 +1,7 @@
 library(tidyverse)
 library(ggpubr)
 library(readxl)
-theme <- theme(axis.text.x = element_text(margin = margin(t = 0.1, unit = "cm")),
+theme = theme(axis.text.x = element_text(margin = margin(t = 0.1, unit = "cm")),
                axis.text.y = element_text(margin = margin(r = 0.1, unit = "cm")),
                axis.ticks.length=unit(0.15, "cm"),
                axis.ticks = element_line(colour = "black"),
@@ -13,12 +13,12 @@ theme <- theme(axis.text.x = element_text(margin = margin(t = 0.1, unit = "cm"))
                legend.title = element_text(size = 12),
                panel.grid.minor = element_blank(),
                panel.grid.major = element_blank())
-source("code/IWB_model.R")
+source("codes/IWB_model.R")
 
-rc = read.csv("out/dp17.csv")
+rc = read.csv("output/dp17.csv")
 rc$section = factor(rc$section, levels = c("Lantian", "Shilou", "Jiaxian"))
-mw = read_xlsx("data/ModernWater_China_tian2019.xlsx")
-sw = read_xlsx("data/Kelson2023.xlsx", sheet = "data")
+mw = read_xlsx("data/isotope_records/ModernWater_China_tian2019.xlsx")
+sw = read_xlsx("data/isotope_records/Kelson2023.xlsx", sheet = "data")
 
 ## comparison with modern data ----
 # all modern waters
@@ -35,7 +35,6 @@ p1 = ggplot(rc, aes(x = dp18sw, y = Dp17sw)) +
        y = expression(Delta^"'17"*"O (per meg, VSMOW)"),
        fill = expression(paste("T (", degree, "C)")))
 p1
-# ggsave("figures/dp18_Dp17_comparison.jpg", height = 3.6, width = 4.7)
 
 # soil waters
 p2 = ggplot(sw, aes(x = dp18sw, y = Dp17sw, fill = AI)) +

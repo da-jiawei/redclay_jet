@@ -4,50 +4,50 @@ pal = c("#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C", "#FB9A99", "#E31A1C")
 pal2 = c("#A6CEE3", "#FB9A99", "#E31A1C")
 
 ## read data ----
-sw = read.csv("out/d18c.csv")
-t47 = read.csv("out/D47.csv")
-dp17 = read.csv("out/dp17.csv")
-smi = read_xlsx("data/regional records/SMI.xlsx") %>%
+sw = read.csv("output/d18c.csv")
+t47 = read.csv("output/D47.csv")
+dp17 = read.csv("output/dp17.csv")
+smi = read_xlsx("data/regional_records/SMI.xlsx") %>%
   mutate(age = age / 1000) %>%
   filter(age > 2 & age < 7.5) %>%
   drop_na(SMI)
-iron = read_xlsx("data/regional records/freeiron.xlsx", sheet = "Pianguan")
-lr04 = read_xlsx("data/global records/LR04.xlsx") %>%
+iron = read_xlsx("data/regional_records/freeiron.xlsx", sheet = "Pianguan")
+lr04 = read_xlsx("data/global_records/LR04.xlsx") %>%
   mutate(age = age / 1000) %>%
   filter(age > 2.5 & age < 7.5)
-co2 = read.csv("data/global records/Pliocene_CO2.csv") %>%
+co2 = read.csv("data/global_records/Pliocene_CO2.csv") %>%
   filter(xls != "phytoplankton_tanner_2021_p1.0.xlsx") %>%
   filter(xls != "phytoplankton_badger_2013a_p1.0.xlsx") %>%
   filter(proxy != "Paleosols") %>%
   mutate(age = age / 1000) %>%
   filter(age > 2.5 & age < 7.5)
 # Northern Hemisphere high latitude
-site883 = read_xlsx("data/global records/SST_calibrated.xlsx", sheet = "883 884") %>%
+site883 = read_xlsx("data/global_records/SST_calibrated.xlsx", sheet = "883 884") %>%
   mutate(age = ageBP / 1000) %>%
   filter(age > 2.5 & age < 7.5)
 site883$SST_change = site883$SST_50 - 5.420348
-site907 = read_xlsx("data/global records/SST_calibrated.xlsx", sheet = "907") %>%
+site907 = read_xlsx("data/global_records/SST_calibrated.xlsx", sheet = "907") %>%
   mutate(age = ageBP / 1000) %>%
   filter(age > 2.5 & age < 7.5)
 site907$SST_change = site907$SST_50 - 1.77141
-site982 = read_xlsx("data/global records/SST_calibrated.xlsx", sheet = "982") %>%
+site982 = read_xlsx("data/global_records/SST_calibrated.xlsx", sheet = "982") %>%
   mutate(age = ageBP / 1000) %>%
   filter(age > 2.5 & age < 7.5)
 site982$SST_change = site982$SST_50 - 10.754817
 # Northern Hemisphere middle latitude
-site1010 = read_xlsx("data/global records/SST_calibrated.xlsx", sheet = "1010")
+site1010 = read_xlsx("data/global_records/SST_calibrated.xlsx", sheet = "1010")
 site1010$SST_change = site1010$SST_50 - 17.303341
-site1021 = read_xlsx("data/global records/SST_calibrated.xlsx", sheet = "1021")
+site1021 = read_xlsx("data/global_records/SST_calibrated.xlsx", sheet = "1021")
 site1021$SST_change = site1021$SST_50 - 14.320929
-site1208 = read_xlsx("data/global records/SST_calibrated.xlsx", sheet = "1208")
+site1208 = read_xlsx("data/global_records/SST_calibrated.xlsx", sheet = "1208")
 site1208$SST_change = site1208$SST_50 - 18.702248
 # SST gradient
-DSST = read.csv("data/global records/DSST.csv") %>%
+DSST = read.csv("data/global_records/DSST.csv") %>%
   mutate(age = age / 1000)
 # obliquity modulation
-ob = read_xlsx("data/global records/Pliocene_orbital_and_insolation_data.xlsx")
-ob.am = read.csv("out/ob.am.csv")
-sig.am = read.csv("out/sig.am.csv")
+ob = read_xlsx("data/global_records/Pliocene_orbital_and_insolation_data.xlsx")
+ob.am = read.csv("output/ob.am.csv")
+sig.am = read.csv("output/sig.am.csv")
 
 ## plot ----
 png("figures/Fig4.global_records.png", 4, 8, units = "in", res = 600)

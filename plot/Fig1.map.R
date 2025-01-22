@@ -100,7 +100,7 @@ ggplot() +
 ggsave(filename = "figures/CLP_map.pdf", width = 5.4, height = 5.1, bg = "white")
 
 # plot monthly rainfall d18O ----
-pal = c("#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C", "#FB9A99", "#E31A1C")
+pal = c("#F58D8D", "#E33438", "#FBB167", "#2D9551")
 dat = read_xlsx("data/regional_records//GNIP.xlsx") %>%
   mutate(d18.low = d18 - d18.sd,
          d18.high = d18 + d18.sd)
