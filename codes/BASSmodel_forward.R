@@ -1,7 +1,7 @@
 ctrl = function(){
   vars = list(
     RH = 0.5,
-    d18p = -10,
+    d18p = -15,
     MAST = 10,
     MSST = 25,
     depth = 50,

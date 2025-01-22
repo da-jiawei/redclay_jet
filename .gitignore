@@ -3,7 +3,8 @@
 .RData
 .Ruserdata
 
-# out
+# folders not to be updated in the Github repository
 out/
 figure/
 other_codes/
+data/sf/
