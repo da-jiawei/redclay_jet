@@ -84,10 +84,11 @@ ggplot() +
   geom_sf(data = desert2, fill = "lightyellow2", color = "transparent") +
   geom_sf(data = loess2, fill = "navajowhite1", color = "transparent") +
   geom_sf(data = river2, color = "blue") +
-  geom_point(data = literature, aes(x = longitude, y = latitude), shape = 23, stroke = 1, size = 4) +
+  # geom_point(data = literature, aes(x = longitude, y = latitude), shape = 23, stroke = 1, size = 4) +
   geom_point(data = sampling_site, aes(x = longitude, y = latitude, fill = location), shape = 21, stroke = 1, size = 4) +
   # geom_text(data = site, aes(x = longitude, y = latitude, label = location), vjust = -1, hjust = -0.3) +
   scale_fill_brewer(palette = "Paired") +
+  geom_text(data = sampling_site, aes(x = longitude, y = latitude, label = location), nudge_x = -1.3, nudge_y = 0.4) +
   theme_bw() + 
   theme(panel.grid.minor = element_blank(),
         panel.grid.major = element_blank(),

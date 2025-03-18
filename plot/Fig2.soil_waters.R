@@ -17,7 +17,7 @@ site1 = pal[factor(D47$site, levels = c("Lantian", "Shilou", "Jiaxian"))]
 site2 = pal[factor(d18c$site, levels = c("Lantian", "Shilou", "Jiaxian"))]
 site3 = pal[factor(dp17$section, levels = c("Lantian", "Shilou", "Jiaxian"))]
 
-pdf("figures/FigS2.soil_water.pdf", 4.5, 7)
+pdf("figures/Fig2.soil_water.pdf", 4.5, 7)
 par(mar = c(4, 4, 1, 4))
 plot(0, 0, xlim = c(2, 7.5), ylim = c(0, 6.5), axes = FALSE,
      xlab = "", ylab = "")
@@ -64,37 +64,36 @@ mtext(expression(paste("T"[Delta*"47"]*" (", degree, "C)")), 2, line = 2.5, at =
 legend(x = 6, y = 6.4, legend = c("Lantian", "Shilou", "Jiaxian"),
        col = pal, pch = 16, cex = 0.8, pt.cex = 1.5)
 
-
 # soil water d18O using paired data
-yext = range(D47$d18sw.low, D47$d18sw.high)
-tix = seq(floor(min(yext)),
-          ceiling(max(yext)), by = 2)
-D47.rs = cbind(D47$age,
-               1 + (D47$d18sw - min(tix)) / diff(range(tix)),
-               1 + (D47$d18sw.low - min(tix)) / diff(range(tix)),
-               1 + (D47$d18sw.high - min(tix)) / diff(range(tix)))
-arrows(D47.rs[, 1], D47.rs[, 3], D47.rs[, 1], D47.rs[, 4], col = "black",
-       angle=90, length=0, code = 0)
-points(D47.rs[, 1], D47.rs[, 2], col = "black", bg = site1, pch = 21, cex = 1.5)
-loess_fit = loess(data = D47, d18sw ~ age, span = 0.2)
-pred = predict(loess_fit, se = TRUE)
-lines(lowess(D47.rs[, 1], D47.rs[, 2], f = 0.3), lwd = 3)
-axis(4, 1 + (tix - min(tix)) / diff(range(tix)), tix)
-mtext(expression(delta^"18"*"O"[sw]*" (\u2030)"), 4, line = 2.5, at = 1.5)
-
-# # soil water d18O using interpolated data
-# yext = range(d18c$d18sw.low, d18c$d18sw.high)
-# tix = seq(floor(min(yext)), 
+# yext = range(D47$d18sw.low, D47$d18sw.high)
+# tix = seq(floor(min(yext)),
 #           ceiling(max(yext)), by = 2)
-# d18c.rs = cbind(d18c$age,
-#                 1 + (d18c$d18sw - min(tix)) / diff(range(tix)),
-#                 1 + (d18c$d18sw.low - min(tix)) / diff(range(tix)),
-#                 1 + (d18c$d18sw.high - min(tix)) / diff(range(tix)))
-# arrows(d18c.rs[, 1], d18c.rs[, 3], d18c.rs[, 1], d18c.rs[, 4], col = "black",
+# D47.rs = cbind(D47$age,
+#                1 + (D47$d18sw - min(tix)) / diff(range(tix)),
+#                1 + (D47$d18sw.low - min(tix)) / diff(range(tix)),
+#                1 + (D47$d18sw.high - min(tix)) / diff(range(tix)))
+# arrows(D47.rs[, 1], D47.rs[, 3], D47.rs[, 1], D47.rs[, 4], col = "black",
 #        angle=90, length=0, code = 0)
-# points(d18c.rs[, 1], d18c.rs[, 2], col = "black", bg = site2, pch = 21, cex = 1.2)
+# points(D47.rs[, 1], D47.rs[, 2], col = "black", bg = site1, pch = 21, cex = 1.5)
+# loess_fit = loess(data = D47, d18sw ~ age, span = 0.2)
+# pred = predict(loess_fit, se = TRUE)
+# lines(lowess(D47.rs[, 1], D47.rs[, 2], f = 0.3), lwd = 3)
 # axis(4, 1 + (tix - min(tix)) / diff(range(tix)), tix)
 # mtext(expression(delta^"18"*"O"[sw]*" (\u2030)"), 4, line = 2.5, at = 1.5)
+
+# soil water d18O using interpolated data
+yext = range(d18c$d18sw.low, d18c$d18sw.high)
+tix = seq(floor(min(yext)),
+          ceiling(max(yext)), by = 2)
+d18c.rs = cbind(d18c$age,
+                1 + (d18c$d18sw - min(tix)) / diff(range(tix)),
+                1 + (d18c$d18sw.low - min(tix)) / diff(range(tix)),
+                1 + (d18c$d18sw.high - min(tix)) / diff(range(tix)))
+arrows(d18c.rs[, 1], d18c.rs[, 3], d18c.rs[, 1], d18c.rs[, 4], col = "black",
+       angle=90, length=0, code = 0)
+points(d18c.rs[, 1], d18c.rs[, 2], col = "black", bg = site2, pch = 21, cex = 1.2)
+axis(4, 1 + (tix - min(tix)) / diff(range(tix)), tix)
+mtext(expression(delta^"18"*"O"[sw]*" (\u2030)"), 4, line = 2.5, at = 1.5)
 
 yext = range(dp17$Dp17sw.low, dp17$Dp17sw.high)
 tix = seq(ceiling(min(yext)+27), floor(max(yext+20)), 
@@ -112,3 +111,4 @@ mtext(expression(Delta^"'17"*"O"[sw]*" (per meg)"), 2, line = 2.5, at = 0.5)
 axis(1)
 mtext("Age (Ma)", 1, line = 2)
 dev.off()
+
