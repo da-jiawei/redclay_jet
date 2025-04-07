@@ -5,7 +5,7 @@ pg = function(shp, rt){
   sd = sqrt(1/pre)
   plot(density(sd))
 }
-pg(10, 1e2)
+pg(10, 1)
 
 ## For beta distribution
 pb = function(shp, rt){

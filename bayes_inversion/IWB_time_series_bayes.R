@@ -23,8 +23,8 @@ model{
     dp18p[i] = log(R18p[i] / R18smow) * 1000
     
     # GMWL.inter = rnorm(nsyth, 0.015, 0.002)
-    dp17p[i] = 0.5268 * dp18p[i] + 0.015 # Global meteoric water - Aron (2021)
-    # dp17p[i] = dp18p[i] * 0.528 + Dp17p[i] / 1000
+    # dp17p[i] = 0.5268 * dp18p[i] + 0.015 # Global meteoric water - Aron (2021)
+    dp17p[i] = dp18p[i] * 0.528 + Dp17p[i] / 1000
     R17p[i] = exp(dp17p[i] / 1000) * R17smow
 
     ### equilibrium fractionation coefficients
@@ -69,10 +69,10 @@ model{
     d18p.eps[i] ~ dnorm(d18p.eps[i - 1] * (d18p.phi ^ dt), d18p.pc[i])
     d18p.pc[i] = d18p.tau * ((1 - d18p.phi ^ 2) / (1 - d18p.phi ^ (2 * dt)))
     
-    # Dp17p[i] ~ dunif(20, 50)
-    # Dp17p[i] = Dp17p[i - 1] + Dp17p.eps[i]
-    # Dp17p.eps[i] ~ dnorm(Dp17p.eps[i - 1] * (Dp17p.phi ^ dt), Dp17p.pc[i])
-    # Dp17p.pc[i] = Dp17p.tau * ((1 - Dp17p.phi ^ 2) / (1 - Dp17p.phi ^ (2 * dt)))
+    # Dp17p[i] ~ dunif(20, 40)
+    Dp17p[i] = Dp17p[i - 1] + Dp17p.eps[i]
+    Dp17p.eps[i] ~ dnorm(Dp17p.eps[i - 1] * (Dp17p.phi ^ dt), Dp17p.pc[i])
+    Dp17p.pc[i] = Dp17p.tau * ((1 - Dp17p.phi ^ 2) / (1 - Dp17p.phi ^ (2 * dt)))
 
     # RH[i] ~ dunif(0.5, 0.8)
     RH.1[i] = RH[i - 1] + RH.eps[i]
@@ -92,11 +92,11 @@ model{
   }
   
   # time series parameters ----
-  d18p.tau ~ dgamma(10, 1)
+  d18p.tau ~ dgamma(10, 1e-1)
   d18p.phi ~ dbeta(2, 5)
 
-  # Dp17p.tau ~ dgamma(10, 2)
-  # Dp17p.phi ~ dbeta(2, 5)
+  Dp17p.tau ~ dgamma(10, 1e-2)
+  Dp17p.phi ~ dbeta(2, 5)
 
   RH.tau ~ dgamma(10, 1e-5)
   RH.phi ~ dbeta(2, 5)
@@ -110,11 +110,11 @@ model{
   # priors of environmental parameters ----
   d18p[1] ~ dunif(-30, -20)
   d18p.eps[1] = 0
-  # Dp17p[1] ~ dunif(20, 50)
-  # Dp17p.eps[1] = 0
+  Dp17p[1] ~ dnorm(30, 1/5^2)
+  Dp17p.eps[1] = 0
   RH[1] ~ dunif(0.5, 0.8)
   RH.eps[1] = 0
-  f[1] ~ dunif(0.2, 0.5)
+  f[1] ~ dunif(0.1, 0.5)
   f.eps[1] = 0
   Tsoil[1] ~ dunif(10, 30)
   Tsoil.eps[1] = 0
