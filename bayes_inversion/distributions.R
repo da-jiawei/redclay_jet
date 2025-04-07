@@ -5,15 +5,15 @@ pg = function(shp, rt){
   sd = sqrt(1/pre)
   plot(density(sd))
 }
-pg(10, 1e-5)
+pg(10, 1e2)
 
 ## For beta distribution
 pb = function(shp, rt){
   pre = rbeta(1e6, shp, rt)
   plot(density(pre))
 }
-pb(0.7 * 100 / 0.3, 100) 
-
+pb(0.65 * 50 / 0.35, 50) 
+pb(5, 2)
 ## For normal distribution
 pn = function(mean, sd){
   pre = rnorm(1e6, mean, sd)

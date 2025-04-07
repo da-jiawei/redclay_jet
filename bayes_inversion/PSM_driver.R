@@ -35,6 +35,23 @@ for (i in 1:length(parms)) {
   param = parms[i]
   plot.jpi(ages$ts, post.clp$BUGSoutput$sims.list[[param]], n = 100, ylab = param)
 }
+
+clp2 = clp %>%
+  group_by(section, age) %>%
+  summarise(across(everything(), mean, na.rm = TRUE))
+
+for (i in 1:length(parms)) {
+  param = parms[i]
+  clp2[[param]] = post.clp$BUGSoutput$mean[[param]]
+}
+clp2[] <- lapply(clp2, function(x) {
+  if (is.array(x)) as.vector(x) else x
+})
+write_csv(clp2, file = "output/clp_bayes.csv")
+
+ggplot(clp2, aes(x = MAT, y = d18p, fill = section)) +
+  geom_point(shape = 21, size = 3)
+
 # plot.jpi(ages$ts, post.clp$BUGSoutput$sims.list$d18p, n = 400, ylab = "")
 # save(post.clp, file = "out/ms_fx_2e4_450ppm.rda")
 # load("out/ms_fx_2e4_MS.rda")

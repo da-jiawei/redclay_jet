@@ -28,11 +28,11 @@ model{
     z_m[i] = z[i] / 100
 
     ## Soil temperatures at depth z
-    Tsoil[i] = MAT[i] + (PCQ_to[i] * sin(2 * 3.141593 * tsc[i] - z[i] / d)) / exp(z[i] / d) 
+    Tsoil[i] = MAT[i] + (PCQ_to[i] * sin(2 * 3.141593 * tsc - z[i] / d)) / exp(z[i] / d) 
     Tsoil.K[i] = Tsoil[i] + 273.15
     
     ## Potential Evapotranspiration - Hargreaves and Samani (1982) and Turc (1961)
-    Tair_PCQ[i] = MAT[i] + PCQ_to[i] * sin(2 * 3.141593 * tsc[i])
+    Tair_PCQ[i] = MAT[i] + PCQ_to[i] * sin(2 * 3.141593 * tsc)
     PET_PCQ_D.1[i] = ifelse(ha[i] < 0.5, 
                        0.013 * (Tair_PCQ[i] / (Tair_PCQ[i] + 15)) * (23.885 * Rs + 50) * (1 + ((0.5 - ha[i]) / 0.7)),
                        0.013 * (Tair_PCQ[i] / (Tair_PCQ[i] + 15)) * (23.885 * Rs + 50))
@@ -70,21 +70,21 @@ model{
     R17a[i] = R17p[i] * alpha17.eq[i]
     
     ### Soil evaporation from AET
-    E1[i] = ETR[i] * AET_PCQ[i]
+    E1[i] = ETR * AET_PCQ[i]
     E[i] = max(E1[i], 1) # minimum of 1 mm
     E_s[i] = E[i] / (1e3 * 90 * 24 * 3600) # soil evaporation rate in m/sec
     
     ### Water vapor diffusivity
     es[i] = (0.611 * exp(17.502 * Tsoil[i] / (Tsoil[i] + 240.97))) * 1e3 # saturated water vapor pressure from Tetens formula
     N.sat[i] = 0.01802 * es[i] / (Rgas * Tsoil.K[i]) # saturated water vapor concentration at a given temperature
-    Dv.soil[i] = Dair * tort * (pore[i] - theta.o) # effective diffusivity of water vapor in soil (m2/s)
+    Dv.soil[i] = Dair * tort * (pore - theta.o) # effective diffusivity of water vapor in soil (m2/s)
     z.bar[i] = N.sat[i] * Dv.soil[i] / (E_s[i] * rho) # penetration depth (m)
     z.ef1[i] = (1 - ha[i]) * z.bar[i] # the thickness of the water vapor phase region (m)
     z.ef[i] = max(z.ef1[i], 1e-10)
     
     ### Liquid water diffusivity (m2/s) (Easteal 1984)
     Dl[i] = exp(1.6766 + 1.6817 * (1e3 / Tsoil.K[i]) - 0.5773 * (1e3 / Tsoil.K[i]) ^ 2) * 1e-9 
-    Dl.soil[i] = Dl[i] * pore[i] * tort # effective diffusivity of liquid water (m2/s)
+    Dl.soil[i] = Dl[i] * pore * tort # effective diffusivity of liquid water (m2/s)
     z.hat[i] = Dl.soil[i] / E_s[i] # the decay length (mean penetration depth)
     
     ### The evaporation front
@@ -97,7 +97,7 @@ model{
     
     ### Isotope composition of soil water at depth z
     hs[i] = min(ha[i] + z_m[i] / z.bar[i], 1)
-    z.f[i] = (theta.bar[i] / a.theta) * log(z_m[i] / z.ef[i]) # the modified depth function
+    z.f[i] = (theta.mean / a.theta) * log(z_m[i] / z.ef[i]) # the modified depth function
     R18s[i] = ifelse(z_m[i] <= z.ef[i], 
                       (alpha18.diff * R18p[i] * z_m[i] / z.bar[i] + ha[i] * R18a[i]) / 
                         (hs[i] * alpha18.eq[i]),
@@ -118,26 +118,25 @@ model{
     dp17c[i] = log(R17c[i] / R17vpdb) * 1e3
     Dp17c[i] = (dp17c[i] - 0.528 * dp18c[i]) * 1e3 # per meg
     D47c[i] = 0.0391e6 / Tsoil.K[i] ^ 2 + 0.154 # Andersen (2021)
-
   }
   
   for(i in 1:length(ai)){
     # Time dependent variables ----
     ## Primary environmental ----
-    MAT[i] ~ dunif(4, 17) # mean annual temperature
+    MAT[i] ~ dunif(5, 20) # mean annual temperature
     PCQ_to[i] ~ dunif(7, 15)
-    MAP[i] ~ dunif(200, 1000) # mean annual precipitation, mm
-    PCQ_pf[i] ~ dunif(0.02, 0.55) # PCQ precipitation fraction
-    d18p[i] ~ dunif(-20, -10)
-    Dp17p[i] ~ dunif(0, 10)
+    MAP[i] ~ dunif(200, 700) # mean annual precipitation, mm
+    PCQ_pf[i] ~ dunif(0.1, 0.5) # PCQ precipitation fraction
+    d18p[i] ~ dunif(-25, -15)
+    Dp17p[i] ~ dunif(-5, 20)
     
     ## Secondary soil ----
-    tsc[i] ~ dunif(0.1, 0.6)
+    # tsc[i] ~ dunif(0.1, 0.6)
     h_m[i] = min(0.95, 0.25 + 0.7 * (PPCQ[i] / 900))
     ha[i] ~ dbeta(h_m[i] * 100 / (1 - h_m[i]), 100) # PCQ atmospheric humidity
-    ETR[i] ~ dbeta(0.06 * 1000 / 0.94, 1000) # Soil evaporation / AET
-    theta.bar[i] ~ dunif(0.05, 0.5) # mean water content
-    pore[i] ~ dunif(0.45, 0.54) # soil porosity
+    # ETR[i] ~ dbeta(0.06 * 1000 / 0.94, 1000) # Soil evaporation / AET
+    # theta.mean[i] ~ dunif(0.05, 0.5) # mean water content
+    # pore[i] ~ dunif(0.45, 0.54) # soil porosity
   }
   
   # Not time dependent ----
@@ -157,8 +156,11 @@ model{
   alpha17.diff = alpha18.diff ^ theta.diff
   theta.eq = 0.529
   
+  tsc = 0.3
+  ETR = 0.06
+  pore = 0.4 # soil porosity
   tort = 0.7 # soil tortuosity
-  # theta.mean = 0.065 # mean water content
+  theta.mean = 0.065 # mean water content
   theta.o = 0.05 # disconnected water content
   a.theta = 0.05 # rate of increase of water content with depth (m-1) (Barnes and Allison, 1983)
   Rgas = 8.314462 # gas constant

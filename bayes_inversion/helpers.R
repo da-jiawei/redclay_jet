@@ -51,7 +51,7 @@ plot.jpi = function(x, y, n = 500, ylab = deparse(substitute(y)), ylim = range(y
   
   m = apply(y, 2, median)
   lines(x, m, lwd = 3, col = "red")
-  points(ai, rep(min(y), length(ai)))
+  # points(ai, rep(min(y), length(ai)))
 }
 
 get.ind = function(obs, ages){
