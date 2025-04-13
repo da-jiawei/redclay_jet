@@ -72,6 +72,8 @@ IWB = function(vars){
   Dp17c = (dp17c - 0.528 * dp18c) * 1e3 # per meg
   D47c = 0.0391e6 / Tsoil.K ^ 2 + 0.154 # Andersen (2021)
   
-  results = data.frame("f" = rep(f), "Tsoil" = rep(Tsoil), "d18c" = rep(d18c), "Dp17c" = rep(Dp17c))
+  results = data.frame("f" = rep(f), "Tsoil" = rep(Tsoil), 
+                       "d18c" = rep(d18c), "Dp17c" = rep(Dp17c),
+                       "dp18sw" = rep(dp18sw), "Dp17sw" = rep(Dp17sw))
   return(results)
 }

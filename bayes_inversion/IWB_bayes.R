@@ -63,11 +63,11 @@ model{
   
   # priors of environmental parameters ----
   for (i in 1:length(ages)) {
-    d18p[i] ~ dunif(-35, -20)
-    Dp17p[i] ~ dunif(20, 21)
-    RH[i] ~ dunif(0.5, 0.8)
-    f[i] ~ dunif(0.1, 0.5)
-    Tsoil[i] ~ dunif(10, 30)
+    d18p[i] ~ dunif(d18p.min, d18p.max)
+    Dp17p[i] ~ dunif(Dp17p.min, Dp17p.max)
+    RH[i] ~ dunif(RH.min, RH.max)
+    f[i] ~ dunif(f.min, f.max)
+    Tsoil[i] ~ dunif(Tsoil.min, Tsoil.max)
   }
   
   # constants  

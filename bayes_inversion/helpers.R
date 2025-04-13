@@ -43,14 +43,14 @@ ai = function(){
 plot.jpi = function(x, y, n = 500, ylab = deparse(substitute(y)), ylim = range(y), ...){
   # x = timeseries ages, y = simslist matrix
   inds = sample(seq_along(y[, 1]), n)
-  plot(x, y[inds[1],], type = "l", xlab = "Age", ylab = ylab, ylim = ylim, 
+  plot(x, y[inds[1],], type = "l", xlab = "Age (Ma)", ylab = ylab, ylim = ylim, 
        col = rgb(0, 0, 0, 0.05), ...)
   for(i in inds[-1]){
     lines(x, y[i,], col = rgb(0, 0, 0, 0.1))
   }
   
   m = apply(y, 2, median)
-  lines(x, m, lwd = 3, col = "red")
+  points(x, m, pch = 21, cex = 1.2, lwd = 2, col = "red", bg = "white")
   # points(ai, rep(min(y), length(ai)))
 }
 
