@@ -33,8 +33,8 @@ ages = clp$age
 # priors
 d18p.min = -30
 d18p.max = -20
-Dp17p.min = 10 #10
-Dp17p.max = 30 #30
+Dp17p.min = -50.1 #10
+Dp17p.max = -50 #30
 RH.min = 0.5 #0.5
 RH.max = 0.8 #0.8
 f.min = 0.1
@@ -57,11 +57,12 @@ system.time({post.clp = jags.parallel(d, NULL, parms, "bayes_inversion/IWB_bayes
                                       n.iter = 1e6, n.chains = 3, n.burnin = 5e5)})
 
 # View(post.clp$BUGSoutput$summary)
-save(post.clp, file = "output/IWB_1e6.rda")
+save(post.clp, file = "output/IWB_1e6_fixed_Dp17p.rda")
+load("output/IWB_1e6.rda")
 
-# plot iterations ----
-# time series
-pdf("figures/time_series_posterior.pdf", width = 6.8, height = 6.2)
+# plot iterations
+# time series  ----
+pdf("figures/time_series_posterior_fixed_Dp17p.pdf", width = 6.8, height = 6.2)
 par(mfrow = c(3, 2),
     mar = c(2.5,2.5,1,1),
     mgp = c(1.5, .5, 0))
@@ -69,8 +70,10 @@ for (i in 1:length(parms)) {
   param = parms[i]
   plot.jpi(ages, post.clp$BUGSoutput$sims.list[[param]], n = 100, ylab = param)
 }
+
 dev.off()
 
+# pdf ---- 
 # pdf("figures/posterior_pdfs.pdf", width = 4.5, height = 5.8)
 par(mfrow = c(3, 2),
     mar = c(2.5,3,2,1),
@@ -98,19 +101,18 @@ for (p in 1:length(parms)) {
 }
 dev.off()
 
-# ggplot 
+# ggplot ----
 for (i in 1:length(parms)) {
   param = parms[i]
   param.sd = paste0(param, ".sd")
   clp[[param]] = post.clp$BUGSoutput$mean[[param]]
   clp[[param.sd]] = post.clp$BUGSoutput$sd[[param]]
-  # screening criterion (Rhat < 1.1)
   dat = as.data.frame(post.clp$BUGSoutput$summary[(length(ages)*(i-1)+1):(length(ages)*i), ])
-  # for (p in 1:length(ages)) {
-  #   if (dat$Rhat[p] > 1.03) {
-  #     clp[[param]][p] = NA
-  #   }
-  # }
+  for (p in 1:length(ages)) {
+    if (dat$Rhat[p] > 1.03) { # Rhat < 1.03
+      clp[[param]][p] = NA
+    }
+  }
 }
 
 clp$section = factor(clp$section, levels = c("Lantian", "Shilou", "Jiaxian"))
@@ -142,10 +144,14 @@ p3 = ggplot(clp, aes(x = RH * 100, y = f, fill = section)) +
 p3
 
 ggarrange(p1, p2, p3, nrow = 1, ncol = 3, common.legend = TRUE)
-ggsave("figures/Bayes_IWB_section_screened.jpg", width = 10, height = 4)
+ggsave("figures/Bayes_IWB_section_screened_fixed_Dp17p.jpg", width = 10, height = 4)
 
-ggplot(clp, aes(x = d18p, y = Dp17p, fill = section)) +
-  geom_point(shape = 21, size = 4) +
+clp2 = clp |> drop_na(d18p, Dp17p)
+ggplot(data = clp2) +
+  geom_point(aes(x = 1e3*log(d18p/1e3 + 1), y = Dp17p, fill = SID),
+             shape = 21, size = 4) +
+  geom_point(aes(x = dp18sw, y = Dp17sw, fill = SID),
+             shape = 22, size = 4)
   scale_fill_brewer(palette = "Paired") +
   theme_bw() + theme
 

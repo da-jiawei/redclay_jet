@@ -1,103 +1,195 @@
+rm(list = ls())
 # load library
-libs = c("elevatr", "terra", "tidyverse","sf", "giscoR", "osmdata", "marmap", "countrycode", "readxl", "ggspatial")
+libs = c("elevatr", "terra", "sf", "tidyterra", "tidyverse", "readxl", "scales", "ggspatial")
 invisible(lapply(libs, library, character.only = T))
 
 # coordinate system
-crsLONGLAT = "+proj=longlat +datum=WGS84 +no_defs"
+crsLONGLAT = "EPSG:4326"
+crs_xian = "+proj=longlat +ellps=IAU76 +no_defs +type=crs"
 
 # load data
-clp = read_sf("data/sf/LoessPlateauRegion/LoessPlateauRegion.shp") |>
-  sf::st_transform(crs = crsLONGLAT)
 site = read_xlsx("data/sites_info.xlsx")
-sampling_site = site %>% 
+sampling_site = site |> 
   filter(work == "this study")
-sampling_site$location =  factor(sampling_site$location, levels = c("Lantian", "Shilou", "Jiaxian"))
-GNIP = site %>% 
+sampling_site$location = factor(sampling_site$location, levels = c("Lantian", "Shilou", "Jiaxian"))
+GNIP = site |>
   filter(work == "GNIP")
-literature = site %>% filter(work == "ref")
+literature = site |>
+  filter(work == "ref")
 
-## plot region ----
-# get bbox elevation data
-xmin = 90
-xmax = 130
-ymin = 20
+# load shapefile
+clp_sf = read_sf("data/sf/LoessPlateauRegion/LoessPlateauRegion.shp")
+
+# load dem
+xmin = 80
+xmax = 140
+ymin = 10
 ymax = 50
-loc_df = data.frame(x = runif(100, xmin, xmax),
-                     y = runif(100, ymin, ymax))
-region_elevation = elevatr::get_elev_raster(locations = loc_df, prj = crsLONGLAT, z = 6, clip = "locations") |>
+bbox = st_polygon(list(rbind(
+  c(xmin, ymin),
+  c(xmin, ymax),
+  c(xmax, ymax),
+  c(xmax, ymin),
+  c(xmin, ymin)
+))) |>
+  st_sfc(crs = crsLONGLAT) |>
+  st_as_sf()
+dem = elevatr::get_elev_raster(
+  locations = bbox,
+  z = 5,
+  clip = "bbox"
+) |>
   terra::rast()
-# terra::plot(region_elevation)
-
-
-# plot region
-region_elevation_df = region_elevation |>
-  as.data.frame(xy = T) |>
-  na.omit()
-names(region_elevation_df)[3] = "elevation"
-
-# Map of East Asia and sampling locations
-eastasia = ggplot(data = region_elevation_df) +
-  geom_raster(aes(x = x, y = y, fill = elevation), alpha = 1) +
-  geom_sf(data = clp, fill = "transparent", color = "tomato") +
-  geom_point(data = sampling_site, aes(x = longitude, y = latitude, color = location),
-             shape = 21, size = 3, fill = "white") +
-  geom_point(data = GNIP, aes(x = longitude, y = latitude, color = location),
-             shape = 22, size = 3, fill = "white") +
-  scale_color_brewer(palette = "Paired") +
-  marmap::scale_fill_etopo() +
-  coord_sf(crs = crsLONGLAT) +
-  guides(fill = guide_colorbar(direction = "vertical", barheight = unit(30, "mm"), barwidth = unit(3, "mm"),
-                               # title.position = "top", label.position = "right",
-                               title.hjust = .5, label.hjust = .5,
-                               ncol = 1, byrow = FALSE)) +
-  labs(x = "", y = "", title = "", subtitle = "", caption = "") +
-  theme_bw() +
-  theme(
-    legend.position = "none",
-    panel.grid.major = element_blank(),
-    panel.grid.minor = element_blank(),
-    plot.margin = unit(c(t = 0, r = 0, b = 0, l = 0), "cm"),
-    plot.background = element_blank(),
-    panel.background = element_blank(),
-    panel.border = element_blank())
-eastasia
-ggsave(filename = "figures/EastAsia_map.pdf", width = 5.4, height = 5, eastasia, bg = "white")
-
-## plot CLP with shape file ----
-loess = st_read("data/sf/loess.shp")
-desert = st_read("data/sf/Desert.shp", crs = crsLONGLAT)
-river = st_read("data/sf/hyd1_4l.shp", crs = crsLONGLAT)
-# mount = st_read("sf/Mountains.shp", crs = crsLONGLAT)
+tidyterra::autoplot(dem)
 
 xmin = 100
 xmax = 115
 ymin = 33
 ymax = 42
+clp_bbox = bbox = st_polygon(list(rbind(
+  c(xmin, ymin),
+  c(xmin, ymax),
+  c(xmax, ymax),
+  c(xmax, ymin),
+  c(xmin, ymin)
+))) |>
+  st_sfc(crs = crsLONGLAT) |>
+  st_as_sf()
+clp_dem = elevatr::get_elev_raster(
+ locations = clp_bbox,
+ z = 7,
+ clip = "bbox"
+) |>
+  terra::rast()
+tidyterra::autoplot(clp_dem)
 
-loess2 = st_intersection(loess, clp)
-desert2 = st_intersection(desert, clp)
-river2 = st_intersection(river, clp)
-# mount2 = st_intersection(mount, clp)
+# Map of East Asia and sampling locations
+elev_range = as.numeric(minmax(dem))
+elev_limits = c(floor(elev_range[1] / 500), ceiling(elev_range[2] / 500)) * 500
 
 ggplot() +
-  geom_sf(data = clp, fill = "transparent", color = "black") +
-  geom_sf(data = desert2, fill = "lightyellow2", color = "transparent") +
-  geom_sf(data = loess2, fill = "navajowhite1", color = "transparent") +
-  geom_sf(data = river2, color = "blue") +
-  # geom_point(data = literature, aes(x = longitude, y = latitude), shape = 23, stroke = 1, size = 4) +
-  geom_point(data = sampling_site, aes(x = longitude, y = latitude, fill = location), shape = 21, stroke = 1, size = 4) +
-  # geom_text(data = site, aes(x = longitude, y = latitude, label = location), vjust = -1, hjust = -0.3) +
-  scale_fill_brewer(palette = "Paired") +
+  geom_spatraster(data = dem,
+                  maxcell = Inf) +
+  scale_fill_hypso_tint_c(palette = "wiki-2.0",
+                          limits = elev_limits,
+                          alpha = 1) +
+  geom_sf(data = clp_bbox, fill = "transparent", color = "black") +
+  geom_point(data = sampling_site, aes(x = longitude, y = latitude, color = location),
+             shape = 21, size = 3, fill = "white") +
+  geom_point(data = GNIP, aes(x = longitude, y = latitude, color = location),
+             shape = 22, size = 3, fill = "white") +
+  scale_color_brewer(palette = "Paired") +
+  coord_sf(crs = crsLONGLAT,
+           expand = FALSE) +
+  labs(x = "", y = "", title = "", subtitle = "", caption = "") +
+  theme_bw() +
+  theme(
+    legend.position = "none",
+    plot.background = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    panel.border = element_blank())
+ggsave(filename = "figures/EastAsia_map.pdf", width = 5.4, height = 5, bg = "white")
+
+## plot CLP with shape file ----
+# shade 
+slope = terra::terrain(clp_dem, "slope", unit = "radians")
+aspect = terra::terrain(clp_dem, "aspect", unit = "radians")
+hill = terra::shade(slope, aspect, angle = 30, direction = 270)
+names(hill) = "shades"
+pal_greys = hcl.colors(1e3, palette = "Grays")
+ggplot() +
+  geom_spatraster(data = hill, maxcell = Inf) +
+  scale_fill_gradientn(colors = pal_greys, na.value = NA)
+
+index = hill |>
+  mutate(index.col = rescale(shades, to = c(1, length(pal_greys)))) |>
+  mutate(index.col = round(index.col)) |>
+  pull(index.col)
+pal_cols = pal_greys[index]
+hill_shade = ggplot() +
+  geom_spatraster(data = hill,
+                  fill = pal_cols,
+                  maxcell = Inf) +
+  coord_sf(crs = crsLONGLAT)
+hill_shade
+# river
+rivers = read_sf("data/sf/HydroRIVERS_v10_as_shp/HydroRIVERS_v10_as.shp") |>
+  select(ORD_FLOW, geometry) |>
+  st_transform(crs = crsLONGLAT)
+clp_rivers = st_intersection(
+  rivers,
+  clp_bbox
+)
+sort(unique(clp_rivers$ORD_FLOW))
+clp_rivers_width = clp_rivers |>
+  mutate(width = as.numeric(ORD_FLOW))|>
+  mutate(width = case_when(
+    width == 3 ~ 0.5,
+    width == 4 ~ 0.3,
+    # width == 5 ~ 0.1,
+    TRUE ~ 0
+  )) |>
+  filter(width > 0)
+ggplot() +
+  geom_sf(data = clp_rivers,
+          linewidth = clp_rivers$width)
+
+elev_range = as.numeric(minmax(clp_dem))
+elev_limits = c(floor(elev_range[1] / 500), ceiling(elev_range[2] / 500)) * 500
+elev_limits = pmax(elev_limits, 0)
+
+hill_shade +
+  geom_spatraster(data = clp_dem,
+                  maxcell = Inf) +
+  scale_fill_hypso_tint_c(palette = "dem_poster",
+                          limits = elev_limits,
+                          alpha = 0.6,
+                          labels = label_comma()) +
+  geom_sf(data = clp_rivers_width, 
+          linewidth = clp_rivers_width$width,
+          color = "lightblue1") +
+  geom_point(data = literature, 
+             aes(x = longitude, y = latitude),
+             fill = "white",
+             shape = 23, 
+             stroke = 1, 
+             size = 4) +
+  geom_point(data = sampling_site, 
+             aes(x = longitude, y = latitude, color = location), 
+             fill = "white",
+             shape = 21, 
+             stroke = 1, 
+             size = 4) +
+  scale_color_brewer(palette = "Paired") +
+  geom_text(data = literature, aes(x = longitude, y = latitude, label = location), nudge_x = -1.3, nudge_y = 0.4) +
   geom_text(data = sampling_site, aes(x = longitude, y = latitude, label = location), nudge_x = -1.3, nudge_y = 0.4) +
+  guides(fill = guide_colorbar(
+    title = "height (m)",
+    direction = "vertical",
+    label.position = "right",
+    title.position = "top",
+    barwidth = unit(3, "mm"),
+    barheight = unit(30, "mm"),
+    override.aes = list(alpha = 1)),
+    color = "none") +
   theme_bw() + 
   theme(panel.grid.minor = element_blank(),
         panel.grid.major = element_blank(),
-        axis.text = element_text(size = 10),
         panel.background = element_blank(),
-        legend.position = "none") +
-  coord_sf(xlim = c(xmin, xmax), ylim = c(ymin, ymax)) +
-  labs(x = "", y = "", fill = "") + 
-  annotation_scale(location = "bl", style = "ticks", width_hint = 0.2)
+        panel.border = element_blank(),
+        # plot.margin = margin(0,0,0,0, unit = "mm"),
+        # legend.position = "none",
+        legend.ticks = element_line(color = "black"),
+        axis.text = element_text(size = 10)) +
+  coord_sf(expand = FALSE,
+           crs = crs_xian) +
+  labs(x = "", y = "", color = "") + 
+  annotation_scale(location = "tl", 
+                   style = "ticks", 
+                   width_hint = 0.2,
+                   pad_y = unit(0.1, "npc"))
 ggsave(filename = "figures/CLP_map.pdf", width = 5.4, height = 5.1, bg = "white")
 
 # plot monthly rainfall d18O ----
