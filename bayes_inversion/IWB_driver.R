@@ -116,6 +116,7 @@ for (i in 1:length(parms)) {
 }
 
 clp$section = factor(clp$section, levels = c("Lantian", "Shilou", "Jiaxian"))
+write.csv(clp, "output/clp_bayes.csv")
 p1 = ggplot(clp, aes(x = temp, y = d18p, fill = section)) +
   geom_errorbar(aes(xmin = temp - temp.se, xmax = temp + temp.se), size = 0.2, color = "grey70", width = 0) +
   geom_errorbar(aes(ymin = d18p - d18p.sd, ymax = d18p + d18p.sd), size = 0.2, color = "grey70", width = 0) +
@@ -140,10 +141,12 @@ p3 = ggplot(clp, aes(x = RH * 100, y = f, fill = section)) +
   geom_point(shape = 21, size = 4) +
   scale_fill_brewer(palette = "Paired") +
   theme_bw() + theme +
-  labs(x = "RH (%)", y = expression(italic(f)))
+  labs(x = "RH (%)", y = expression(italic(f))) +
+  scale_x_continuous(limits = c(58, 75))
 p3
 
 ggarrange(p1, p2, p3, nrow = 1, ncol = 3, common.legend = TRUE)
+ggsave("figures/Bayes_IWB_section_screened_fixed_Dp17p.jpg", width = 10, height = 4)
 ggsave("figures/Bayes_IWB_section_screened_fixed_Dp17p.jpg", width = 10, height = 4)
 
 clp2 = clp |> drop_na(d18p, Dp17p)
@@ -151,8 +154,9 @@ ggplot(data = clp2) +
   geom_point(aes(x = 1e3*log(d18p/1e3 + 1), y = Dp17p, fill = SID),
              shape = 21, size = 4) +
   geom_point(aes(x = dp18sw, y = Dp17sw, fill = SID),
-             shape = 22, size = 4)
+             shape = 22, size = 4) +
   scale_fill_brewer(palette = "Paired") +
+  guides(fill = "none") +
   theme_bw() + theme
 
 

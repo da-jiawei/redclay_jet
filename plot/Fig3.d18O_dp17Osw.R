@@ -19,9 +19,9 @@ rc = read.csv("output/dp17.csv")
 rc$section = factor(rc$section, levels = c("Lantian", "Shilou", "Jiaxian"))
 mw = read_xlsx("data/isotope_records/ModernWater_China_tian2019.xlsx")
 sw = read_xlsx("data/isotope_records/Kelson2023.xlsx", sheet = "data")
+rc_bayes = read.csv("output/clp_bayes.csv")
 
-## comparison with modern data ----
-# all modern waters
+# all modern waters ----
 p1 = ggplot(rc, aes(x = dp18sw, y = Dp17sw)) +
   geom_point(data = mw, aes(x = dp18O, y = Dp17O), color = "grey", size = 3, shape = 21) +
   geom_errorbar(aes(ymin = Dp17sw.low, ymax = Dp17sw.high), linewidth = 0.2) +
@@ -31,12 +31,49 @@ p1 = ggplot(rc, aes(x = dp18sw, y = Dp17sw)) +
   scale_fill_distiller(palette = "RdBu") +
   scale_shape_manual(values = c(21,22,23)) +
   theme_bw() + theme +
+  guides(fill = "none",
+         shape = "none") +
   labs(x = expression(delta^"'18"*"O (\u2030, VSMOW)"),
        y = expression(Delta^"'17"*"O (per meg, VSMOW)"),
        fill = expression(paste("T (", degree, "C)")))
 p1
 
-# soil waters
+# joint proxy inversion of isolated water body model ----
+p2 = ggplot(clp, aes(x = temp, y = d18p, fill = section)) +
+  geom_errorbar(aes(xmin = temp - temp.se, xmax = temp + temp.se), size = 0.2, color = "grey70", width = 0) +
+  geom_errorbar(aes(ymin = d18p - d18p.sd, ymax = d18p + d18p.sd), size = 0.2, color = "grey70", width = 0) +
+  geom_point(size = 4, shape = 21) +
+  scale_fill_brewer(palette = "Paired") +
+  theme_bw() + theme +
+  guides(fill = "none") +
+  labs(x = expression(paste("T"[Delta][47]*" (", degree, "C)")),
+       y = expression(delta^"18"*"O"[p]*" (\u2030)"))
+p2
+p3 = ggplot(clp, aes(x = temp, y = RH * 100, fill = section)) +
+  geom_errorbar(aes(xmin = temp - temp.se, xmax = temp + temp.se), size = 0.2, color = "grey70", width = 0) +
+  geom_errorbar(aes(ymin = (RH - RH.sd) * 100, ymax = (RH + RH.sd) * 100), size = 0.2, color = "grey70", width = 0) +
+  geom_point(shape = 21, size = 4) +
+  scale_fill_brewer(palette = "Paired") +
+  theme_bw() + theme +
+  guides(fill = "none") +
+  labs(x = expression(paste("T"[Delta][47]*" (", degree, "C)")),
+       y = "RH (%)")
+p3
+p4 = ggplot(clp, aes(x = RH * 100, y = f, fill = section)) +
+  geom_errorbar(aes(ymin = f - f.sd, ymax = f + f.sd), size = 0.2, color = "grey70", width = 0) +
+  geom_errorbar(aes(xmin = (RH - RH.sd) * 100, xmax = (RH + RH.sd) * 100), size = 0.2, color = "grey70", width = 0) +
+  geom_point(shape = 21, size = 4) +
+  scale_fill_brewer(palette = "Paired") +
+  theme_bw() + theme +
+  labs(x = "RH (%)", y = expression(italic(f))) +
+  guides(fill = "none") +
+  scale_x_continuous(limits = c(58, 75))
+p4
+ggarrange(p1, p2, p3, p4, nrow = 2, ncol = 2, align = "hv", labels = c("a", "b", "c", "d"))
+ggsave("figures/dp18_Dp17_sw.pdf", height = 6.24, width = 6.3)
+
+
+# soil waters ----
 p2 = ggplot(sw, aes(x = dp18sw, y = Dp17sw, fill = AI)) +
   geom_errorbar(aes(xmin = dp18sw - dp18sw.sd, xmax = dp18sw + dp18sw.sd),
                 linewidth = 0.2, width = 0, color = "ivory3") +
@@ -74,7 +111,7 @@ p3
 ggarrange(p1, p2, p3 , nrow = 2, ncol = 2, align = "hv", labels = c("a", "b", "c"))
 ggsave("figures/dp18_Dp17_sw.pdf", height = 7, width = 10.5)
 
-## isolated water body
+## isolated water body ----
 # d18p
 vars = ctrl()
 for (i in 1:3) {
