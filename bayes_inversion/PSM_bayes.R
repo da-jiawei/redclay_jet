@@ -1,30 +1,30 @@
 model{
 
   # Data model ----
-  for(i in 1:length(d18Oc.ai)){
-    d18Oc.obs[i, 1] ~ dnorm(d18c[d18Oc.ai[i]], d18Oc.pre[i])
+  for(i in 1:length(ages)){
+    d18Oc.obs[i, 1] ~ dnorm(d18c[i], d18Oc.pre[i])
     d18Oc.pre[i] = 1 / d18Oc.obs[i, 2] ^ 2
   }
   
-  for(i in 1:length(D47c.ai)){
-    D47c.obs[i, 1] ~ dnorm(D47c[D47c.ai[i]], D47c.pre[i])
+  for(i in 1:length(ages)){
+    D47c.obs[i, 1] ~ dnorm(D47c[i], D47c.pre[i])
     D47c.pre[i] = 1 / D47c.obs[i, 2] ^ 2
   }
   
-  for (i in 1:length(Dp17c.ai)) {
-    Dp17c.obs[i, 1] ~ dnorm(Dp17c[Dp17c.ai[i]], Dp17c.pre[i])
+  for (i in 1:length(ages)) {
+    Dp17c.obs[i, 1] ~ dnorm(Dp17c[i], Dp17c.pre[i])
     Dp17c.pre[i] = 1 / Dp17c.obs[i, 2] ^ 2
   }
   
-  for(i in 1:length(ai)){  
+  for(i in 1:length(ages)){  
     # Soil carbonate ----
     ## Depth to carbonate formation based on Retallack (2005) data, meters
-    z.min[i] = MAP[i] * 0.0925 + 13.4
-    z.thick[i] = abs(PPCQ[i] - MAP[i] / 4) * 0.74 + 17.3
-    z.mean[i] = z.min[i] + z.thick[i] / 2
-    z.beta[i] = z.mean[i] / (22 ^ 2)
-    z.alpha[i] = z.mean[i] * z.beta[i]
-    z[i] ~ dgamma(z.alpha[i], z.beta[i])
+    # z.min[i] = MAP[i] * 0.0925 + 13.4
+    # z.thick[i] = abs(PPCQ[i] - MAP[i] / 4) * 0.74 + 17.3
+    # z.mean[i] = z.min[i] + z.thick[i] / 2
+    # z.beta[i] = z.mean[i] / (22 ^ 2)
+    # z.alpha[i] = z.mean[i] * z.beta[i]
+    # z[i] ~ dgamma(z.alpha[i], z.beta[i])
     z_m[i] = z[i] / 100
 
     ## Soil temperatures at depth z
@@ -120,20 +120,21 @@ model{
     D47c[i] = 0.0391e6 / Tsoil.K[i] ^ 2 + 0.154 # Andersen (2021)
   }
   
-  for(i in 1:length(ai)){
+  for(i in 1:length(ages)){
     # Time dependent variables ----
     ## Primary environmental ----
     MAT[i] ~ dunif(5, 20) # mean annual temperature
     PCQ_to[i] ~ dunif(7, 15)
     MAP[i] ~ dunif(200, 700) # mean annual precipitation, mm
     PCQ_pf[i] ~ dunif(0.1, 0.5) # PCQ precipitation fraction
-    d18p[i] ~ dunif(-25, -15)
-    Dp17p[i] ~ dunif(-5, 20)
+    d18p[i] ~ dunif(d18p.min, d18p.max)
+    Dp17p[i] ~ dunif(Dp17p.min, Dp17p.max)
     
     ## Secondary soil ----
     # tsc[i] ~ dunif(0.1, 0.6)
     h_m[i] = min(0.95, 0.25 + 0.7 * (PPCQ[i] / 900))
     ha[i] ~ dbeta(h_m[i] * 100 / (1 - h_m[i]), 100) # PCQ atmospheric humidity
+    z[i] ~ dunif(0, 100)
     # ETR[i] ~ dbeta(0.06 * 1000 / 0.94, 1000) # Soil evaporation / AET
     # theta.mean[i] ~ dunif(0.05, 0.5) # mean water content
     # pore[i] ~ dunif(0.45, 0.54) # soil porosity

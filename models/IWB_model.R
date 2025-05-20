@@ -1,8 +1,9 @@
 ctrl = function(){
   vars = list(
-    RH = 0.5,
-    d18p = -20,
-    Tsoil = 20,
+    RH = 0.8,
+    d18p = -15,
+    Dp17p = 10,
+    Tsoil = 30,
     f = seq(0.01, 1, 0.01)
   )
   return(vars)
@@ -24,7 +25,8 @@ IWB = function(vars) {
   dp18.p <- log(R18_i / R18_SMOW) * 1000
   # GMWL.slope <- rnorm(nsyth, 0.5268, 0.0002)
   # GMWL.inter <- rnorm(nsyth, 0.015, 0.002)
-  dp17.p <- 0.5268 * dp18.p + 0.015 # Global meteoric water - Aron (2021)
+  dp17.p <- Dp17p / 1e3 + 0.528 * dp18.p
+  # dp17.p <- 0.5268 * dp18.p + 0.015 # Global meteoric water - Aron (2021)
   # dp17.p <- 0.5292 * dp18.p + 0.0506 # Tap water Northern China - Tian (2017)
   # dp17.p <- dp18.p * 0.528 + Dp17.p / 1000
   R17_i <- exp(dp17.p/1000) * R17_SMOW

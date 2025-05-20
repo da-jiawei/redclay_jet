@@ -1,39 +1,42 @@
 rm(list = ls())
-library(R2jags)
-library(tidyverse)
-library(readxl)
-library(ggpubr)
+pacman::p_load(R2jags, tidyverse, readxl, ggpubr)
 source("bayes_inversion/constructors.R")
 source("bayes_inversion/helpers.R")
 
 ## Read and groom data ----
 clp = read_xlsx("data/Dp17.xlsx")
+clp = clp[order(clp$age),]
 
 ## Parse data into series
-d18Oc = na.exclude(clp[c("age", "d18c", "d18c.se")])
-D47c = na.exclude(clp[c("age", "D47", "D47.se")])
-Dp17c = na.exclude(clp[c("age", "Dp17c", "Dp17c.se")])
-
-ages = ts(d18Oc$age, D47c$age, Dp17c$age)
-tsi = ages$ts_ind
-ai = ages$ts
+d18c = na.exclude(clp[c("d18c", "d18c.se")])
+D47c = na.exclude(clp[c("D47", "D47.se")])
+Dp17c = na.exclude(clp[c("Dp17c", "Dp17c.se")])
+ages = clp$age
 
 ## MCMC ----
-d = list(ai = ages$ts, 
-         d18Oc.obs = d18Oc[, 2:3], d18Oc.ai = tsi[[1]],
-         D47c.obs = D47c[, 2:3], D47c.ai = tsi[[2]],
-         Dp17c.obs = Dp17c[, 2:3], Dp17c.ai = tsi[[3]]
+d18p.min = -20
+d18p.max = -5
+Dp17p.min = 0 #10
+Dp17p.max = 40 #30
+# RH.min = 0.1 #0.5
+# RH.max = 0.9 #0.8
+d = list(ages = ages, 
+         d18Oc.obs = d18c,
+         D47c.obs = D47c,
+         Dp17c.obs = Dp17c,
+         d18p.min = d18p.min, d18p.max = d18p.max,
+         Dp17p.min = Dp17p.min, Dp17p.max = Dp17p.max
 )
 
-parms = c("MAT", "tsc", "MAP", "PCQ_pf", "d18p", "pore", "z_m", "ha", "E_s")
+parms = c("d18p", "Dp17p", "z_m", "ha", "E_s")
 
 system.time({post.clp = jags.parallel(d, NULL, parms, "bayes_inversion/PSM_bayes.R",
-                                      n.iter = 2e4, n.chains = 3, n.burnin = 1e4)})
+                                      n.iter = 1e4, n.chains = 3, n.burnin = 1e3)})
 
 View(post.clp$BUGSoutput$summary)
 for (i in 1:length(parms)) {
   param = parms[i]
-  plot.jpi(ages$ts, post.clp$BUGSoutput$sims.list[[param]], n = 100, ylab = param)
+  plot.jpi(ages, post.clp$BUGSoutput$sims.list[[param]], n = 100, ylab = param)
 }
 
 clp2 = clp %>%

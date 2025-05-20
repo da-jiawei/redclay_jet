@@ -56,7 +56,7 @@ parms = c("RH", "d18p", "Dp17p", "f", "Tsoil")
 system.time({post.clp = jags.parallel(d, NULL, parms, "bayes_inversion/IWB_bayes.R",
                                       n.iter = 1e6, n.chains = 3, n.burnin = 5e5)})
 
-# View(post.clp$BUGSoutput$summary)
+View(post.clp$BUGSoutput$summary)
 save(post.clp, file = "output/IWB_1e6_fixed_Dp17p.rda")
 load("output/IWB_1e6.rda")
 

@@ -1,12 +1,13 @@
 ctrl = function(){
   vars = list(
-    RH = 0.5,
+    RH = 0.8,
     d18p = -15,
-    MAST = 10,
-    MSST = 25,
+    Dp17p = 10,
+    MAST = 20,
+    MSST = 30,
     depth = 50,
-    t = 3,
-    evap = 5e-10
+    tsc = .25,
+    evap = 2e-10
   )
   return(vars)
 }
@@ -28,14 +29,14 @@ BASS = function(vars){
   
   R18p = (d18p / 1000 + 1) * R18smow
   dp18p = log(R18p / R18smow) * 1000
-  # dp17p = 40/1000 + 0.528 * dp18p
-  dp17p = 0.5268 * dp18p + 0.015 # Global meteoric water - Aron (2021)
+  dp17p = Dp17p/1000 + 0.528 * dp18p
+  # dp17p = 0.5268 * dp18p + 0.015 # Global meteoric water - Aron (2021)
   R17p = exp(dp17p / 1000) * R17smow
   pore = 0.45 # for loess
   tort = 0.7
   theta.mean = 0.065
   dT = MSST - MAST
-  airT = MAST + dT * sin(2 * pi * t/12)
+  airT = MAST + dT * sin(2 * pi * tsc)
   airT.K = airT + 273.15
   
   # equilibrium fractionation factor for vapor to liquid - (Horita and Wesolowski 1994)

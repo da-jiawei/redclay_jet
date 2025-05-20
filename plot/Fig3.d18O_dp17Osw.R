@@ -1,25 +1,21 @@
-library(tidyverse)
-library(ggpubr)
-library(readxl)
-theme = theme(axis.text.x = element_text(margin = margin(t = 0.1, unit = "cm")),
-               axis.text.y = element_text(margin = margin(r = 0.1, unit = "cm")),
-               axis.ticks.length=unit(0.15, "cm"),
-               axis.ticks = element_line(colour = "black"),
-               text = element_text(color = "black", size = 12),
-               axis.title = element_text(size = 15), 
-               axis.text = element_text(color = "black", size = 12),
-               plot.title = element_text(hjust = 0.1, vjust = -10),
-               legend.text = element_text(size = 12),
-               legend.title = element_text(size = 12),
-               panel.grid.minor = element_blank(),
-               panel.grid.major = element_blank())
-source("codes/IWB_model.R")
+rm(list = ls())
+pacman::p_load(tidyverse, ggpubr, readxl)
+theme = theme(axis.ticks.length=unit(0.15, "cm"),
+              axis.ticks = element_line(colour = "black"),
+              text = element_text(color = "black", size = 10),
+              axis.title = element_text(size = 12), 
+              axis.text = element_text(color = "black", size = 10),
+              legend.text = element_text(size = 10),
+              legend.title = element_text(size = 10),
+              panel.grid = element_blank())
 
+# load data ----
 rc = read.csv("output/dp17.csv")
 rc$section = factor(rc$section, levels = c("Lantian", "Shilou", "Jiaxian"))
 mw = read_xlsx("data/isotope_records/ModernWater_China_tian2019.xlsx")
 sw = read_xlsx("data/isotope_records/Kelson2023.xlsx", sheet = "data")
-rc_bayes = read.csv("output/clp_bayes.csv")
+bayes_data = read_csv("output/BASS_bayes_vary_evap.csv")
+cat("\014")
 
 # all modern waters ----
 p1 = ggplot(rc, aes(x = dp18sw, y = Dp17sw)) +
@@ -31,47 +27,44 @@ p1 = ggplot(rc, aes(x = dp18sw, y = Dp17sw)) +
   scale_fill_distiller(palette = "RdBu") +
   scale_shape_manual(values = c(21,22,23)) +
   theme_bw() + theme +
-  guides(fill = "none",
-         shape = "none") +
+  annotate("text", x = -18, y = -120, label = "a", fontface = "bold", size = 5) +
   labs(x = expression(delta^"'18"*"O (\u2030, VSMOW)"),
        y = expression(Delta^"'17"*"O (per meg, VSMOW)"),
-       fill = expression(paste("T (", degree, "C)")))
+       fill = expression(paste("T"[Delta][47]*" (", degree, "C)")), shape = "")
 p1
 
-# joint proxy inversion of isolated water body model ----
-p2 = ggplot(clp, aes(x = temp, y = d18p, fill = section)) +
-  geom_errorbar(aes(xmin = temp - temp.se, xmax = temp + temp.se), size = 0.2, color = "grey70", width = 0) +
-  geom_errorbar(aes(ymin = d18p - d18p.sd, ymax = d18p + d18p.sd), size = 0.2, color = "grey70", width = 0) +
-  geom_point(size = 4, shape = 21) +
-  scale_fill_brewer(palette = "Paired") +
+# joint proxy inversion of steady state model ----
+p2 = ggplot(bayes_data, aes(x = 1e3 * (exp(dp18sw / 1e3) - 1), y = post_d18p)) +
+  geom_errorbar(aes(ymin = post_d18p - post_d18p_sd, ymax = post_d18p + post_d18p_sd), 
+                linewidth = 0.2, color = "grey80") +
+  geom_point(aes(fill = temp, shape = section), size = 4) +
+  scale_fill_distiller(palette = "RdBu") +
+  scale_shape_manual(values = c(21,22,23)) +
   theme_bw() + theme +
-  guides(fill = "none") +
-  labs(x = expression(paste("T"[Delta][47]*" (", degree, "C)")),
-       y = expression(delta^"18"*"O"[p]*" (\u2030)"))
+  annotate("text", x = -5.5, y = -17.5, label = "b", fontface = "bold", size = 5) +
+  labs(x = expression(delta^"18"*"O"[sw]*" (\u2030, VSMOW)"),
+       y = expression(delta^"'18"*"O"[p]*" (\u2030, VSMOW)"),
+       fill = expression(paste("T"[Delta][47]*" (", degree, "C)")), shape = "")
+ggarrange(p1, p2, nrow = 1, ncol = 2, align = "hv",
+          common.legend = TRUE, legend = "right")
 p2
-p3 = ggplot(clp, aes(x = temp, y = RH * 100, fill = section)) +
-  geom_errorbar(aes(xmin = temp - temp.se, xmax = temp + temp.se), size = 0.2, color = "grey70", width = 0) +
-  geom_errorbar(aes(ymin = (RH - RH.sd) * 100, ymax = (RH + RH.sd) * 100), size = 0.2, color = "grey70", width = 0) +
-  geom_point(shape = 21, size = 4) +
-  scale_fill_brewer(palette = "Paired") +
-  theme_bw() + theme +
-  guides(fill = "none") +
-  labs(x = expression(paste("T"[Delta][47]*" (", degree, "C)")),
-       y = "RH (%)")
-p3
-p4 = ggplot(clp, aes(x = RH * 100, y = f, fill = section)) +
-  geom_errorbar(aes(ymin = f - f.sd, ymax = f + f.sd), size = 0.2, color = "grey70", width = 0) +
-  geom_errorbar(aes(xmin = (RH - RH.sd) * 100, xmax = (RH + RH.sd) * 100), size = 0.2, color = "grey70", width = 0) +
-  geom_point(shape = 21, size = 4) +
-  scale_fill_brewer(palette = "Paired") +
-  theme_bw() + theme +
-  labs(x = "RH (%)", y = expression(italic(f))) +
-  guides(fill = "none") +
-  scale_x_continuous(limits = c(58, 75))
-p4
-ggarrange(p1, p2, p3, p4, nrow = 2, ncol = 2, align = "hv", labels = c("a", "b", "c", "d"))
-ggsave("figures/dp18_Dp17_sw.pdf", height = 6.24, width = 6.3)
 
+p3 = ggplot(bayes_data, aes(x = 1e3 * (exp(dp18sw / 1e3) - 1), y = post_RH * 1e2)) +
+  geom_errorbar(aes(ymin = (post_RH - post_RH_sd) * 1e2, ymax = (post_RH + post_RH_sd) * 1e2), 
+                linewidth = 0.2, color = "grey80") +
+  geom_point(aes(fill = temp, shape = section), size = 4) +
+  scale_fill_distiller(palette = "RdBu") +
+  scale_shape_manual(values = c(21,22,23)) +
+  theme_bw() + theme +
+  annotate("text", x = -5.5, y = 32, label = "c", fontface = "bold", size = 5) +
+  labs(x = expression(delta^"18"*"O"[sw]*" (\u2030, VSMOW)"),
+       y = "RH (%)",
+       fill = expression(paste("T"[Delta][47]*" (", degree, "C)")), shape = "")
+
+ggarrange(p1, p2, p3, nrow = 1, ncol = 3, align = "hv",
+          common.legend = TRUE, legend = "right")
+
+ggsave("figures/Fig2.d18O_Dp17O_bayes.jpg", width = 10, height = 3.3, dpi = 400)
 
 # soil waters ----
 p2 = ggplot(sw, aes(x = dp18sw, y = Dp17sw, fill = AI)) +
@@ -110,69 +103,3 @@ p3 = ggplot(arid, aes(x = dp18sw, y = Dp17sw, fill = location)) +
 p3
 ggarrange(p1, p2, p3 , nrow = 2, ncol = 2, align = "hv", labels = c("a", "b", "c"))
 ggsave("figures/dp18_Dp17_sw.pdf", height = 7, width = 10.5)
-
-## isolated water body ----
-# d18p
-vars = ctrl()
-for (i in 1:3) {
-  vars$d18p = -30 + 5 * i
-  if (i == 1) {
-    sens.d18p = IWB(vars)
-    sens.d18p$d18p = vars$d18p
-  } else {
-    iter = IWB(vars)
-    iter$d18p = vars$d18p
-    sens.d18p = rbind(sens.d18p, iter)
-  }
-}
-sens.d18p$d18p = as.character(sens.d18p$d18p)
-# point = sens.d18p %>% filter(f %in% seq(0.1, 1, 0.1))
-p1  = ggplot() +
-  geom_point(data = rc, aes(x = dp18sw, y = Dp17sw, shape = section, fill = temp), size = 4) +
-  geom_path(data = sens.d18p, aes(x = dp18sw, y = Dp17sw, color = d18p, group = d18p)) +
-  scale_shape_manual(values = c(21,22,23)) +
-  scale_fill_distiller(palette = "RdBu") +
-  scale_color_brewer(palette = "Set2") +
-  theme_bw() + theme +
-  scale_x_continuous(limits = c(-20, 0)) +
-  scale_y_continuous(limits = c(-100, 50)) +
-  guides(fill = FALSE, shape = FALSE) +
-  labs(x = expression(delta^"'18"*"O (\u2030)"),
-       y = expression(Delta^"'17"*"O (per meg)"),
-       fill = expression("T"[47]*paste(" (", degree, "C)")),
-       color = expression(delta^"18"*"O"[sw]*" (\u2030)"),
-       shape = "")
-p1
-# humidity
-vars = ctrl()
-sens.rh = IWB(vars)
-for (i in 1:3) {
-  vars$RH = 0.1 + 0.2 * i
-  if (i == 1) {
-    sens.rh = IWB(vars)
-    sens.rh$RH = vars$RH
-  } else {
-    iter = IWB(vars)
-    iter$RH = vars$RH
-    sens.rh = rbind(sens.rh, iter)
-  }
-}
-sens.rh$RH <- as.character(sens.rh$RH)
-# point = sens.rh %>% filter(f %in% seq(0.1, 1, 0.1))
-
-p2 = ggplot() +
-  geom_point(data = rc, aes(x = dp18sw, y = Dp17sw, shape = section, fill = temp), size = 4) +
-  geom_path(data = sens.rh, aes(x = dp18sw, y = Dp17sw, color = RH, group = RH)) +
-  scale_shape_manual(values = c(21,22,23)) +
-  scale_fill_distiller(palette = "RdBu") +
-  scale_color_brewer(palette = "Set2") +
-  theme_bw() + theme +
-  scale_x_continuous(limits = c(-20, 0)) +
-  scale_y_continuous(limits = c(-100, 50)) +
-  guides(fill = FALSE, shape = FALSE) +
-  labs(x = expression(delta^"'18"*"O"[sw]*" (\u2030)"),
-       y = expression(Delta^"'17"*"O"[sw]*" (per meg)"),
-       color = "RH (%)")
-ggarrange(p1, p2, nrow = 1, ncol = 2, widths = c(1.09,1))
-ggsave("figures/IWB.jpg", width = 9, height = 3.7)
-
