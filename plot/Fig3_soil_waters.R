@@ -1,6 +1,5 @@
-library(tidyverse)
-library(ggpubr)
-library(readxl)
+rm(list = ls())
+pacman::p_load(tidyverse, ggpubr, readxl)
 
 ## read data ----
 D47 = read.csv("output/D47.csv")
@@ -11,15 +10,15 @@ ob.am = read.csv("output/ob.am.csv")
 ob = read_xlsx("data/global_records/Pliocene_orbital_and_insolation_data.xlsx")
 sig.am = read.csv("output/sig.am.csv")
 
-## plot ----
+## time series plot ----
 pal = c("#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C", "#FB9A99", "#E31A1C")
 site1 = pal[factor(D47$site, levels = c("Lantian", "Shilou", "Jiaxian"))]
 site2 = pal[factor(d18c$site, levels = c("Lantian", "Shilou", "Jiaxian"))]
 site3 = pal[factor(dp17$section, levels = c("Lantian", "Shilou", "Jiaxian"))]
 
-pdf("figures/Fig2.soil_water.pdf", 4.5, 7)
+png("figures/Fig3.soil_water.png", 4.5, 7, units = "in", res = 500)
 par(mar = c(4, 4, 1, 4))
-plot(0, 0, xlim = c(2, 7.5), ylim = c(0, 6.5), axes = FALSE,
+plot(0, 0, xlim = c(2.5, 7.5), ylim = c(0, 5), axes = FALSE,
      xlab = "", ylab = "")
 
 yext = range(ob$obliquity)
@@ -61,8 +60,6 @@ pred = predict(loess_fit, se = TRUE)
 lines(lowess(D47.rs[, 1], D47.rs[, 2], f = 0.3), lwd = 3)
 axis(2, 2 + (tix - min(tix)) / diff(range(tix)), tix)
 mtext(expression(paste("T"[Delta*"47"]*" (", degree, "C)")), 2, line = 2.5, at = 2.5)
-legend(x = 6, y = 6.4, legend = c("Lantian", "Shilou", "Jiaxian"),
-       col = pal, pch = 16, cex = 0.8, pt.cex = 1.5)
 
 # soil water d18O using paired data
 # yext = range(D47$d18sw.low, D47$d18sw.high)
@@ -108,7 +105,16 @@ points(dp17.rs[, 1], dp17.rs[, 2], col = "black", bg = site3, pch = 21, cex = 1.
 axis(2, 1 - (tix - min(tix)) / diff(range(tix)), tix)
 mtext(expression(Delta^"'17"*"O"[sw]*" (per meg)"), 2, line = 2.5, at = 0.5)
 
-axis(1)
+axis(1, at = seq(2.5, 7.5, 1), cex = 1, mgp = c(1, .7, 0))
 mtext("Age (Ma)", 1, line = 2)
+text(5, 0, "Lantian", col = pal[1])
+text(6, 0, "Shilou", col = pal[2])
+text(7, 0, "Jiaxian", col = pal[3])
+text(3, 4.9, "a", cex = 1.5, col = "black", font = 2)
+text(3, 3.9, "b", cex = 1.5, col = "black", font = 2)
+text(2.5, 2.9, "c", cex = 1.5, col = "black", font = 2)
+text(2.5, 1.9, "d", cex = 1.5, col = "black", font = 2)
+text(2.5, .9, "e", cex = 1.5, col = "black", font = 2)
+
 dev.off()
 

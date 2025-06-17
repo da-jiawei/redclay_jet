@@ -1,8 +1,19 @@
 rm(list = ls())
 pacman::p_load(tidyverse, readxl)
-d13Catm = read_csv("data/global_records/d13Ca_tipple.csv")
+d13Catm = read_csv("data/global_records/d13Ca_tipple.csv") |> filter(age <= 8)
 CO2atm = read_csv("data/global_records/age_co2_plot_data.csv")[, c(4, 7:9)] |>
   mutate(age = age / 1e3)
+# tooth enamel
+d13Catm$co2 = approx(CO2atm$age, CO2atm$co2, xout = d13Catm$age)$y
+d13te = d13Catm |>
+  drop_na() |>
+  mutate(D13_wet = 4/4 + (29.9 - 4.4) * .81 - 19.2 / co2,
+         D13_dry = 4/4 + (29.9 - 4.4) * .55 - 19.2 / co2) |>
+  mutate(d13_wet = (d13C - D13_wet) / (D13_wet / 1e3 + 1),
+         d13_dry = (d13C - D13_dry) / (D13_dry / 1e3 + 1)) |>
+  mutate(d13te_wet = ((1e3 + d13_wet) / ((-14.1 / 1e3) + 1)) - 1e3,
+         d13te_dry = ((1e3 + d13_dry) / ((-14.1 / 1e3) + 1)) - 1e3)
+write.csv(d13te, "data/regional_records/d13_org/processed/modeled_d13C.csv")
 
 # Jiaxian (occluded organic matter)
 jiaxian_age = read_xlsx("data/regional_records/d13_org/jiaxian/Jiaxian_summary_MS.xlsx")

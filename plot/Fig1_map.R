@@ -42,7 +42,7 @@ literature_proj = st_transform(literature_sf, crs = pacific_crs)
 
 ggplot() +
   geom_sf(data = land_proj, fill = "grey90", color = "grey", linewidth = 0.3) +
-  geom_sf(data = clp_sf, fill = "transparent", color = "yellow") +
+  geom_sf(data = clp_sf, fill = "transparent", color = "yellow", linewidth = 1) +
   geom_sf(data = literature_proj, shape = 21, size = 3, fill = "white") +
   geom_sf_text(data = literature_proj, aes(label = location), size = 3, 
                nudge_x = 3e5, nudge_y = -2e5) +
@@ -66,7 +66,7 @@ ggsave(filename = "figures/Pacific_map.png", width = 6, height = 4, bg = "white"
 
 #### plot CLP ----
 xian_crs = "EPSG:4610"
-bbox_rect_lonlat = c(xmin = 100, xmax = 115, ymin = 33, ymax = 42)
+bbox_rect_lonlat = c(xmin = 105, xmax = 115, ymin = 33, ymax = 42)
 bbox_clp_rect = st_as_sfc(st_bbox(bbox_rect_lonlat, crs = default_crs))
 east_clp_map = terra::crop(
   map, bbox_clp_rect
@@ -106,8 +106,18 @@ ggplot() +
         axis.text = element_text(size = 10, color = "black")) +
   coord_sf(expand = FALSE,
            crs = xian_crs) +
-  labs(x = "", y = "", color = "")
-ggsave(filename = "figures/CLP_map.png", width = 5.7, height = 4.3, bg = "white", dpi = 500)
+  labs(x = "", y = "", color = "") +
+  ggspatial::annotation_north_arrow(location = "tl",
+                                    which_north = TRUE,
+                                    style = north_arrow_orienteering,
+                                    height = unit(1, "cm"),
+                                    width = unit(1, "cm"),
+                                    pad_x = unit(.5, "cm"), pad_y = unit(.5, "cm")) +
+  ggspatial::annotation_scale(location = "br",
+                              style = "ticks",
+                              width_hint = .25)
+  
+ggsave(filename = "figures/CLP_map.png", width = 4.3, height = 4.4, bg = "white", dpi = 500)
 
 # plot monthly rainfall d18O ----
 pal = c("#F58D8D", "#E33438", "#FBB167", "#2D9551")

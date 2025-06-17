@@ -27,7 +27,7 @@ p1 = ggplot(rc, aes(x = dp18sw, y = Dp17sw)) +
   scale_fill_distiller(palette = "RdBu") +
   scale_shape_manual(values = c(21,22,23)) +
   theme_bw() + theme +
-  annotate("text", x = -18, y = -120, label = "a", fontface = "bold", size = 5) +
+  annotate("text", x = -18, y = -120, label = "f", fontface = "bold", size = 5) +
   labs(x = expression(delta^"'18"*"O (\u2030, VSMOW)"),
        y = expression(Delta^"'17"*"O (per meg, VSMOW)"),
        fill = expression(paste("T"[Delta][47]*" (", degree, "C)")), shape = "")
@@ -41,13 +41,13 @@ p2 = ggplot(bayes_data, aes(x = 1e3 * (exp(dp18sw / 1e3) - 1), y = post_d18p)) +
   scale_fill_distiller(palette = "RdBu") +
   scale_shape_manual(values = c(21,22,23)) +
   theme_bw() + theme +
-  annotate("text", x = -5.5, y = -17.5, label = "b", fontface = "bold", size = 5) +
+  annotate("text", x = -5.5, y = -17.5, label = "g", fontface = "bold", size = 5) +
   labs(x = expression(delta^"18"*"O"[sw]*" (\u2030, VSMOW)"),
        y = expression(delta^"'18"*"O"[p]*" (\u2030, VSMOW)"),
        fill = expression(paste("T"[Delta][47]*" (", degree, "C)")), shape = "")
-ggarrange(p1, p2, nrow = 1, ncol = 2, align = "hv",
+ggarrange(p1, p2, nrow = 2, ncol = 1, align = "hv",
           common.legend = TRUE, legend = "right")
-p2
+ggsave("figures/Fig3.d18_Dp17.jpg", width = 3.8, height = 5.8, dpi = 500)
 
 p3 = ggplot(bayes_data, aes(x = 1e3 * (exp(dp18sw / 1e3) - 1), y = post_RH * 1e2)) +
   geom_errorbar(aes(ymin = (post_RH - post_RH_sd) * 1e2, ymax = (post_RH + post_RH_sd) * 1e2), 
@@ -60,11 +60,7 @@ p3 = ggplot(bayes_data, aes(x = 1e3 * (exp(dp18sw / 1e3) - 1), y = post_RH * 1e2
   labs(x = expression(delta^"18"*"O"[sw]*" (\u2030, VSMOW)"),
        y = "RH (%)",
        fill = expression(paste("T"[Delta][47]*" (", degree, "C)")), shape = "")
-
-ggarrange(p1, p2, p3, nrow = 1, ncol = 3, align = "hv",
-          common.legend = TRUE, legend = "right")
-
-ggsave("figures/Fig2.d18O_Dp17O_bayes.jpg", width = 10, height = 3.3, dpi = 400)
+p3
 
 # soil waters ----
 p2 = ggplot(sw, aes(x = dp18sw, y = Dp17sw, fill = AI)) +
