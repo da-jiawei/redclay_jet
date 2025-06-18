@@ -6,5 +6,4 @@
 # folders not to be updated in the Github repository
 output/
 figures/
-other_codes/
-data/sf/
+data/
