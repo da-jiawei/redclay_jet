@@ -20,6 +20,9 @@ png("figures/Fig3.soil_water.png", 4.5, 7, units = "in", res = 500)
 par(mar = c(4, 4, 1, 4))
 plot(0, 0, xlim = c(2.5, 7.5), ylim = c(0, 5), axes = FALSE,
      xlab = "", ylab = "")
+rect(xleft = 3.3, xright = 3.8, ybottom = 0, ytop = 5, border = NA, col = rgb(1,0,0,.1))
+rect(xleft = 4.7, xright = 5.3, ybottom = 0, ytop = 5, border = NA, col = rgb(1,0,0,.1))
+rect(xleft = 6, xright = 6.4, ybottom = 0, ytop = 5, border = NA, col = rgb(1,0,0,.1))
 
 yext = range(ob$obliquity)
 tix = seq(floor(min(yext*10)), 
@@ -107,6 +110,7 @@ mtext(expression(Delta^"'17"*"O"[sw]*" (per meg)"), 2, line = 2.5, at = 0.5)
 
 axis(1, at = seq(2.5, 7.5, 1), cex = 1, mgp = c(1, .7, 0))
 mtext("Age (Ma)", 1, line = 2)
+
 text(5, 0, "Lantian", col = pal[1])
 text(6, 0, "Shilou", col = pal[2])
 text(7, 0, "Jiaxian", col = pal[3])

@@ -157,6 +157,9 @@ plot(-1, 0, xlim = c(0, 8.5), ylim = c(7, 2), axes = FALSE,
      xlab = "", ylab = "")
 axis(2, at = seq(2, 7, 1), cex = 1, mgp = c(0, -0.3, -1))
 mtext("Age (Ma)", 2, line = 1)
+rect(xleft = 0, ybottom = 5.6, xright = 6.7, ytop = 5, border = NA, col = rgb(1, 0, 0, 0.1), lwd = 0, alpha = .5)
+rect(xleft = 0, ybottom = 5, xright = 6.7, ytop = 3.7, border = NA, col = rgb(0, 0, 1, 0.1), lwd = 0, alpha = .5)
+rect(xleft = 0, ybottom = 3.4, xright = 8.5, ytop = 2.4, border = NA, col = rgb(0, 0, 1, 0.1), lwd = 0, alpha = .5)
 
 # DSST
 xext = range(DSST$TH)
@@ -165,7 +168,8 @@ tix = seq(ceiling(max(xext)),
 dsst.rs = cbind(0 + (DSST$TH - min(tix)) / diff(range(tix)),
                 DSST$age)
 lines(dsst.rs[, 1], dsst.rs[, 2], col = pal[1], lwd = 3)
-axis(3, 0 + (tix - min(tix)) / diff(range(tix)), tix, mgp = c(1, .7, 0), col = pal[1], col.axis = pal[1])
+axis(3, 0 + (tix - min(tix)) / diff(range(tix)), tix, mgp = c(1, .7, 0), 
+     col = pal[1], col.axis = pal[1])
 mtext(expression(paste(Delta*"SST (", degree, "C)")), 3, line = 2, at = .5)
 
 xext = range(DSST$MH)
@@ -174,9 +178,11 @@ tix = seq(ceiling(max(xext)),
 dsst.rs = cbind(0.4 + (DSST$MH - min(tix)) / diff(range(tix)),
                 DSST$age)
 lines(dsst.rs[, 1], dsst.rs[, 2], col = pal[2], lwd = 3)
-axis(3, 0.4 + (tix - min(tix)) / diff(range(tix)), tix, mgp = c(-2, -2.3, -3), col = pal[2], col.axis = pal[2])
+axis(3, 0.4 + (tix - min(tix)) / diff(range(tix)), tix, mgp = c(-2, -2.3, -3), 
+     col = pal[2], col.axis = pal[2])
 
 # Soil water d18O
+site = pal[factor(d18sw$site, levels = c("Lantian", "Shilou", "Jiaxian"))]
 xext = range(d18sw$d18sw)
 tix = seq(floor(min(xext)), ceiling(max(xext)), by = 2)
 soil_water.rs = cbind(2 - (d18sw$d18sw - min(tix)) / diff(range(tix)),
@@ -287,9 +293,6 @@ text(7.9, 2.2, "ODP 885/886", col = pal[4], cex = .8)
 axis(4, at = seq(2, 7, 1), cex = 1, mgp = c(0, -0.3, -1))
 mtext("Age (Ma)", 4, line = 1)
 
-rect(xleft = 0, ybottom = 5.6, xright = 6.7, ytop = 5, border = NA, col = rgb(1, 0, 0, 0.1), lwd = 0, alpha = .5)
-rect(xleft = 0, ybottom = 5, xright = 6.7, ytop = 4, border = NA, col = rgb(0, 0, 1, 0.1), lwd = 0, alpha = .5)
-rect(xleft = 0, ybottom = 3.4, xright = 8.5, ytop = 2.4, border = NA, col = rgb(0, 0, 1, 0.1), lwd = 0, alpha = .5)
 text(.5, 7, "a", cex = 1, col = "black", font = 2)
 text(1.1, 7, "b", cex = 1, col = "black", font = 2)
 text(2.7, 7, "c", cex = 1, col = "black", font = 2)
