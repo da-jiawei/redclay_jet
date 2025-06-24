@@ -18,6 +18,7 @@ bayes_data = read_csv("output/BASS_bayes_vary_evap.csv")
 cat("\014")
 
 # all modern waters ----
+rc$section = factor(rc$section, levels = c("Lantian", "Shilou", "Jiaxian"))
 p1 = ggplot(rc, aes(x = dp18sw, y = Dp17sw)) +
   geom_point(data = mw, aes(x = dp18O, y = Dp17O), color = "grey", size = 3, shape = 21) +
   geom_errorbar(aes(ymin = Dp17sw.low, ymax = Dp17sw.high), linewidth = 0.2) +
@@ -34,10 +35,16 @@ p1 = ggplot(rc, aes(x = dp18sw, y = Dp17sw)) +
 p1
 
 # joint proxy inversion of steady state model ----
+bayes_data$section = factor(bayes_data$section, levels = c("Lantian", "Shilou", "Jiaxian"))
+rc2 = rc |> select(age, temp)
+colnames(rc2)[2] = "T47"
+rc2 = rc2 |> arrange(age)
+bayes_data = cbind(bayes_data, T47 = rc2$T47)
+
 p2 = ggplot(bayes_data, aes(x = 1e3 * (exp(dp18sw / 1e3) - 1), y = post_d18p)) +
   geom_errorbar(aes(ymin = post_d18p - post_d18p_sd, ymax = post_d18p + post_d18p_sd), 
                 linewidth = 0.2, color = "grey80") +
-  geom_point(aes(fill = temp, shape = section), size = 4) +
+  geom_point(aes(fill = T47, shape = section), size = 4) +
   scale_fill_distiller(palette = "RdBu") +
   scale_shape_manual(values = c(21,22,23)) +
   theme_bw() + theme +

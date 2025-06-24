@@ -1,13 +1,28 @@
 rm(list = ls())
-# load library
-libs = c("rnaturalearth", "terra", "sf", "tidyterra", "tidyverse", "readxl", "scales", "ggspatial")
-invisible(lapply(libs, library, character.only = T))
-
-# coordinate system
+pacman::p_load(rnaturalearth, terra, sf, tidyverse, readxl, scales, ggspatial)
 default_crs = "EPSG:4326"
 
+# Prepare Data ----
 # load natural earth map
-map = terra::rast("/Users/geo-checkout-user/Documents/geo_mapping/geo_spatial/resources/HYP_HR_SR_OB_DR/HYP_HR_SR_OB_DR.tif")
+map = terra::rast("/Users/dajiawei/Documents/work/geo_mapping/geo_mapping/resources/Natural_Earth/HYP_50M_SR_W/HYP_50M_SR_W.tif")
+
+bbox_rect_lonlat = c(xmin = 90, xmax = 150, ymin = 10, ymax = 60)
+bbox_rect = st_as_sfc(st_bbox(bbox_rect_lonlat, crs = default_crs))
+eastasia_map = terra::crop(
+  map, bbox_rect, mask = TRUE
+)
+plot(eastasia_map)
+
+rivers = rnaturalearth::ne_download(
+  scale = 'medium',
+  type = 'rivers_lake_centerlines',
+  category = 'physical',
+  returnclass = 'sf'
+)
+# rivers = st_cast(rivers, "LINESTRING")
+# eastasia_rivers = st_intersection(rivers, bbox_rect)
+eastasia_rivers = st_filter(rivers, bbox_rect, .predicate = st_within)
+plot(st_geometry(eastasia_rivers))
 
 # load data
 site = read_xlsx("data/sites_info.xlsx")
@@ -15,12 +30,48 @@ sampling_site = site |> filter(work == "this study")
 sampling_site$location = factor(sampling_site$location, levels = c("Lantian", "Shilou", "Jiaxian"))
 GNIP = site |> filter(work == "GNIP")
 literature = site |> filter(pacific == TRUE)
+d13C_site = literature |> 
+  filter(location %in% c("G3", "U1430"))
 clp_sites = site |> filter(CLP == TRUE & work != "this study")
 
 # load shapefile
-clp_sf = read_sf("/Users/geo-checkout-user/Documents/geo_mapping/geo_spatial/resources/LoessPlateauRegion/LoessPlateauRegion.shp")
+clp_sf = read_sf("/Users/dajiawei/Documents/work/geo_mapping/geo_mapping/resources/LoessPlateauRegion/LoessPlateauRegion.shp")
 clp_sf = st_transform(clp_sf, crs = default_crs)
 plot(st_geometry(clp_sf))
+
+# East Asia Map ----
+base_map_df = as.data.frame(eastasia_map,
+                            xy = TRUE, na.rm = TRUE)
+base_map_df$fill_col = rgb(
+  red = base_map_df$HYP_50M_SR_W_1,
+  green = base_map_df$HYP_50M_SR_W_2,
+  blue = base_map_df$HYP_50M_SR_W_3,
+  maxColorValue = 255
+)
+
+sample_sf = st_as_sf(sampling_site, 
+                     coords = c("longitude", "latitude"),
+                     crs = default_crs)
+d13C_sf = st_as_sf(d13C_site,
+                   coords = c("longitude", "latitude"),
+                   crs = default_crs)
+ggplot() +
+  geom_raster(data = base_map_df,
+              aes(x = x, y = y, fill = fill_col)) +
+  scale_fill_identity() +
+  ggnewscale::new_scale_fill() +
+  geom_sf(data = eastasia_rivers, col = "darkblue") +
+  geom_sf(data = clp_sf, col = "yellow", fill = "transparent") +
+  geom_sf(data = sample_sf, aes(colour = location),
+             shape = 21, size = 4, fill = "white", stroke = 1) +
+  scale_color_brewer(palette = "Paired") +
+  geom_sf(data = d13C_sf, shape = 22, size = 4, stroke = 1) +
+  geom_sf_text(data = d13C_sf, aes(label = location),
+               nudge_y = 2) +
+  theme_bw() +
+  coord_sf(expand = TRUE)
+
+
 
 # Pacific MAP ----
 bbox_rect_lonlat = c(xmin = 100, xmax = 200, ymin = 25, ymax = 60)
