@@ -1,7 +1,5 @@
 rm(list = ls())
-# load library
-libs = c("rnaturalearth", "terra", "sf", "tidyterra", "tidyverse", "readxl", "scales", "ggspatial")
-invisible(lapply(libs, library, character.only = T))
+pacman::p_load(scatterplot3d, rnaturalearth, terra, sf, tidyverse, tidyterra, readxl, scales, ggspatial, elevatr)
 
 # GNIP map ----
 # coordinate system
@@ -150,3 +148,26 @@ text(11, 2.9, "Xi'an", cex = 1, col = "black", font = 2)
 text(5, 3.2, "Shijiazhuang", cex = 1, col = "black", font = 2)
 
 dev.off()
+
+# ggplot ----
+dat = dat |>
+  filter(site %in% c("Shijiazhuang", "Xi'an", "Zunyi", "Guilin"))
+ggplot(dat, aes(x = month, y = d18, group = site)) +
+  geom_line(aes(color = site)) +
+  geom_point(aes(fill = site), shape = 23, size = 3) +
+  scale_color_brewer(palette = "Set1") +
+  scale_fill_brewer(palette = "Set1") +
+  theme_bw() +
+  theme(panel.grid = element_blank(),
+        axis.ticks.length = unit(.2, units = "cm"),
+        axis.text = element_text(size = 12, color = "black"),
+        axis.text.x = element_text(margin = margin(t = 5)),
+        axis.text.y = element_text(margin = margin(r = 5)),
+        axis.title = element_text(size = 15, color = "black"),
+        plot.margin = margin(5,5,5,5)) +
+  scale_x_continuous(breaks = seq(1,12,1)) +
+  guides(color = "none", fill = "none") +
+  labs(x = "", y = expression(delta^"18"*"O"[p]*" (\u2030)"),
+       fill = "")
+ggsave("figures/GNIP_d18Op.png", width = 4.8, height = 2.5, dpi = 300)
+ 

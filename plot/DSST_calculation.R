@@ -59,7 +59,15 @@ DSST = data.frame(age = HL_mean$age,
                   DTP_ML = TP_mean$mean - ML_mean$mean)
 DSST$DTP_HL[1:28] = NA
 
+range = range(DSST$DTP_HL, na.rm = TRUE)
+DSST$HL_norm = (DSST$DTP_HL - min(range)) / diff(range)
+range = range(DSST$DTP_ML, na.rm = TRUE)
+DSST$ML_norm = (DSST$DTP_ML - min(range)) / diff(range)
+
 plot(DSST$age, DSST$DTP_HL, type = "l", col = "tomato",
      ylim = c(22,5))
 lines(DSST$age, DSST$DTP_ML, col = "royalblue")
+plot(DSST$age, DSST$HL_norm, type = "l", col = "tomato")
+lines(DSST$age, DSST$ML_norm, col = "royalblue")
+
 write_csv(DSST, "output/DSST.csv")
