@@ -23,6 +23,7 @@ plot(0, 0, xlim = c(2.5, 7.5), ylim = c(0, 5), axes = FALSE,
 rect(xleft = 3.3, xright = 3.8, ybottom = 0, ytop = 5, border = NA, col = rgb(1,0,0,.1))
 rect(xleft = 4.7, xright = 5.3, ybottom = 0, ytop = 5, border = NA, col = rgb(1,0,0,.1))
 rect(xleft = 6, xright = 6.4, ybottom = 0, ytop = 5, border = NA, col = rgb(1,0,0,.1))
+abline(v = 5.32, col = "black", lty = 2)
 
 yext = range(ob$obliquity)
 tix = seq(floor(min(yext*10)), 
@@ -114,6 +115,7 @@ mtext("Age (Ma)", 1, line = 2)
 text(5, 0, "Lantian", col = pal[1])
 text(6, 0, "Shilou", col = pal[2])
 text(7, 0, "Jiaxian", col = pal[3])
+text(6.2, 5.1, "MPB:5.32 Ma", col = "black", cex = .8)
 text(3, 4.9, "a", cex = 1.5, col = "black", font = 2)
 text(3, 3.9, "b", cex = 1.5, col = "black", font = 2)
 text(2.5, 2.9, "c", cex = 1.5, col = "black", font = 2)

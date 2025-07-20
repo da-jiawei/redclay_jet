@@ -26,17 +26,18 @@ co2 = read_csv("data/global_records/100kyrCO2.csv") |> filter(ages <= 8) |>
 DSST = read_csv("output/DSST.csv")
 
 #### 8 Ma Plot ----
-png("figures/Fig2.d13_organic_matter_time_series.png", 10, 5, units = "in", res = 500)
+pdf("figures/Fig2.d13_organic_matter_time_series.pdf", 10, 5)
+# png("figures/Fig2.d13_organic_matter_time_series.png", 10, 5, units = "in", res = 500)
 par(mar = c(4, 2, 4, 2))
 plot(-1, 0, xlim = c(0, 7.5), ylim = c(8, 0), axes = FALSE,
      xlab = "", ylab = "")
 axis(2, at = seq(0, 8, 1), cex = 1, mgp = c(0, -0.3, -1))
 mtext("Age (Ma)", 2, line = 1)
 
-rect(xleft = 0, ybottom = 5.6, xright = 7.5, ytop = 5, border = NA, col = rgb(1, 0, 0, 0.1), lwd = 0, alpha = .5)
-rect(xleft = 0, ybottom = 5, xright = 7.5, ytop = 3.9, border = NA, col = rgb(0, 0, 1, 0.1), lwd = 0, alpha = .5)
-rect(xleft = 0, ybottom = 3.9, xright = 7.5, ytop = 3.5, border = NA, col = rgb(1, 0, 0, 0.1), lwd = 0, alpha = .5)
-rect(xleft = 0, ybottom = 3.5, xright = 7.5, ytop = .75, border = NA, col = rgb(0, 0, 1, 0.1), lwd = 0, alpha = .5)
+# rect(xleft = 0, ybottom = 5.6, xright = 7.5, ytop = 5, border = NA, col = rgb(1, 0, 0, 0.1), lwd = 0, alpha = .5)
+# rect(xleft = 0, ybottom = 5, xright = 7.5, ytop = 3.9, border = NA, col = rgb(0, 0, 1, 0.1), lwd = 0, alpha = .5)
+# rect(xleft = 0, ybottom = 3.9, xright = 7.5, ytop = 3.5, border = NA, col = rgb(1, 0, 0, 0.1), lwd = 0, alpha = .5)
+# rect(xleft = 0, ybottom = 3.5, xright = 7.5, ytop = .75, border = NA, col = rgb(0, 0, 1, 0.1), lwd = 0, alpha = .5)
 
 # CO2
 xext = range(co2$low, co2$high)
@@ -62,7 +63,7 @@ mtext(expression(delta^"18"*"O"[benthic]*" (\u2030)"), 3, line = 2, at = 1.4)
 # DSST
 xext = range(ob.am$ob.am)
 tix = seq(23.5, 24.4, .2)
-ob.rs = cbind(2.3 - (ob.am$ob.am - min(tix)) / diff(range(tix)),
+ob.rs = cbind(2.2 - (ob.am$ob.am - min(tix)) / diff(range(tix)),
               ob.am$age)
 lines(ob.rs[, 1], ob.rs[, 2], col = pal[5], lwd = 2)
 xext = range(DSST$DTP_HL, na.rm = TRUE)
@@ -177,6 +178,14 @@ text(6.8, .2, "j", cex = 1, col = "black", font = 2)
 
 axis(4, at = seq(0, 8, 1), cex = 1, mgp = c(0, -0.3, -1))
 mtext("Age (Ma)", 4, line = 1)
+
+# arrows(2.4, 3.1, 2.1, 3.1, length = .1, lwd = 2, col = "black")
+# arrows(2.4, 3.95, 2.1, 3.95, length = .1, lwd = 2, col = "black")
+# arrows(2.4, 4.3, 2.1, 4.3, length = .1, lwd = 2, col = "black")
+# 
+# arrows(3.7, 3.1, 3.4, 3.1, length = .1, lwd = 2, col = "black")
+# arrows(3.7, 3.95, 3.4, 3.95, length = .1, lwd = 2, col = "black")
+# arrows(3.7, 4.3, 3.4, 4.3, length = .1, lwd = 2, col = "black")
 
 dev.off()
 
