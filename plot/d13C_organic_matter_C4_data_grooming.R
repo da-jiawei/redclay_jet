@@ -3,6 +3,7 @@ pacman::p_load(tidyverse, readxl)
 d13Catm = read_csv("data/global_records/d13Ca_tipple.csv") |> filter(age <= 8)
 CO2atm = read_csv("data/global_records/age_co2_plot_data.csv")[, c(4, 7:9)] |>
   mutate(age = age / 1e3)
+
 # tooth enamel
 d13Catm$co2 = approx(CO2atm$age, CO2atm$co2, xout = d13Catm$age)$y
 d13te = d13Catm |>
@@ -48,6 +49,11 @@ write_csv(lingtai_BC, "data/regional_records/d13_org/processed/lingtai.csv")
 # ggplot(lingtai_SOM, aes(x = age, y = d13)) +
 #   geom_line() +
 #   geom_line(data = lingtai_BC, aes(x = age, y = d13))
+
+# Lantian (An et al. 2005)
+lantian = read_xlsx("data/regional_records/d13_org/lantian_an2005.xlsx", sheet = 3)[, 9:10]
+names(lantian) = c("age", "d13o")
+write_csv(lantian, "data/regional_records/d13_org/processed/lantian.csv")
 
 # Northern China (Lu et al., 2020)
 northern_china = read_xlsx("data/regional_records/d13_org/northern_china_lu2020.xlsx")

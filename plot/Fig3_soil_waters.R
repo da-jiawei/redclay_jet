@@ -20,9 +20,9 @@ png("figures/Fig3.soil_water.png", 4.5, 7, units = "in", res = 500)
 par(mar = c(4, 4, 1, 4))
 plot(0, 0, xlim = c(2.5, 7.5), ylim = c(0, 5), axes = FALSE,
      xlab = "", ylab = "")
-rect(xleft = 3.3, xright = 3.8, ybottom = 0, ytop = 5, border = NA, col = rgb(1,0,0,.1))
-rect(xleft = 4.7, xright = 5.3, ybottom = 0, ytop = 5, border = NA, col = rgb(1,0,0,.1))
-rect(xleft = 6, xright = 6.4, ybottom = 0, ytop = 5, border = NA, col = rgb(1,0,0,.1))
+rect(xleft = 3.3, xright = 3.8, ybottom = 0, ytop = 5, border = NA, col = "grey90")
+rect(xleft = 4.7, xright = 5.3, ybottom = 0, ytop = 5, border = NA, col = "grey90")
+rect(xleft = 6, xright = 6.4, ybottom = 0, ytop = 5, border = NA, col = "grey90")
 abline(v = 5.32, col = "black", lty = 2)
 
 yext = range(ob$obliquity)
@@ -42,10 +42,10 @@ tix = seq(ceiling(max(yext)),
           floor(min(yext-2.9)), by = -5)
 sig.rs = cbind(ob$age,
               4 - (ob$gradient - min(tix)) / diff(range(tix)))
-lines(sig.rs[, 1], sig.rs[, 2], col = pal[5])
+lines(sig.rs[, 1], sig.rs[, 2], col = "grey50")
 sig.am.rs = cbind(sig.am$age,
                  4 - (sig.am$sig.am - min(tix)) / diff(range(tix)))
-lines(sig.am.rs[, 1], sig.am.rs[, 2], col = pal[6], lwd = 2)
+lines(sig.am.rs[, 1], sig.am.rs[, 2], col = "grey20", lwd = 2)
 axis(4, 4 - (tix - min(tix)) / diff(range(tix)), tix)
 mtext("SIG", 4, line = 2.5, at = 3.5)
 
